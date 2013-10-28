@@ -1,0 +1,1 @@
+return { ["ele"] = { ["c"] = { ["pos"] = { ["y"] = 1, ["x"] = 1 }, ["label"] = "Check", ["value"] = true, ["type"] = "checkbox", ["name"] = "c" }, ["btn"] = { ["pos"] = { ["y"] = 2, ["x"] = 1 }, ["size"] = { ["h"] = 1, ["w"] = 1 }, ["value"] = "Button", ["type"] = "button", ["name"] = "btn" } }, ["size"] = { ["h"] = 3, ["w"] = 5 } }
