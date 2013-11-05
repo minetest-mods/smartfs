@@ -98,7 +98,7 @@ function smartfs._show_(form,player)
 			return false
 		end,
 		button = function(self,x,y,w,h,name,text)
-			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text})
+			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text,closes=false})
 		end,
 		label = function(self,x,y,name,text)
 			return self:element("label",{pos={x=x,y=y},name=name,value=text})
@@ -211,15 +211,27 @@ smartfs.element("button",{
 				self.data.value..
 				"]"
 		else
-			return "button["..
-				self.data.pos.x..","..self.data.pos.y..
-				";"..
-				self.data.size.w..","..self.data.size.h..
-				";"..
-				self.name..
-				";"..
-				self.data.value..
-				"]"
+			if self.data.closes then
+				return "button_exit["..
+					self.data.pos.x..","..self.data.pos.y..
+					";"..
+					self.data.size.w..","..self.data.size.h..
+					";"..
+					self.name..
+					";"..
+					self.data.value..
+					"]"
+			else
+				return "button["..
+					self.data.pos.x..","..self.data.pos.y..
+					";"..
+					self.data.size.w..","..self.data.size.h..
+					";"..
+					self.name..
+					";"..
+					self.data.value..
+					"]"
+			end
 		end
 	end,
 	submit = function(self,fields)
@@ -253,6 +265,9 @@ smartfs.element("button",{
 	end,
 	getImage = function(self)
 		return self.data.img
+	end,
+	setClose = function(self,bool)
+		self.data.closes = bool	
 	end
 })
 
