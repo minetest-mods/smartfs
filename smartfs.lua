@@ -36,11 +36,12 @@ function smartfs.element(name,data)
 end
 
 -- Show a formspec to a user
-function smartfs._show_(form,player)
+function smartfs._show_(form,player,params)
 	local state = {
 		_ele = {},
 		def = form,
 		player = player,
+		param = params,
 		get = function(self,name)
 			return self._ele[name]
 		end,
@@ -167,6 +168,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if smartfs.opened[name] then
 		if smartfs.opened[name].def.name == formname then
 			local state = smartfs.opened[name]
+			
+			if (fields.quit == "true") then
+				smartfs.opened[name] = nil
+				return true
+			end
+			
+			print(dump(fields))
+				
 			for key,val in pairs(fields) do
 				if state._ele[key] then
 					state._ele[key].data.value = val
@@ -174,7 +183,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			end
 			for key,val in pairs(state._ele) do
 				if val.submit then
-					val:submit(fields)
+					if (val:submit(fields)==true) then
+						return true
+					end
 				end
 			end
 			if state.closed ~= true then
@@ -234,9 +245,13 @@ smartfs.element("button",{
 			end
 		end
 	end,
-	submit = function(self,fields)
+	submit = function(self,fields,state)
 		if fields[self.name] and self._click then
 			self:_click(self.root)
+		end
+		
+		if self.data.closes then
+			return true
 		end
 	end,
 	setPosition = function(self,x,y)
