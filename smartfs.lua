@@ -95,6 +95,8 @@ function smartfs._show_(form,player,params,is_inv)
 			if self.is_inv then
 				if unified_inventory then
 					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.player), self.def.name)
+				elseif inventory_plus then
+					inventory_plus.set_inventory_formspec(minetest.get_player_by_name(self.player), self:_getFS_(true))
 				end
 			else
 				local res = self:_getFS_(true)
