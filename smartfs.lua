@@ -313,6 +313,9 @@ smartfs.element("button",{
 	onClick = function(self,func)
 		self._click = func
 	end,
+	click = function(self,func)
+		self._click = func
+	end,
 	setText = function(self,text)
 		self.data.value = text
 	end,
