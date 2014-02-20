@@ -53,12 +53,11 @@ function smartfs.add_to_inventory(form,icon,title)
 			inventory_plus.register_button(player,form.name,title)
 		end)
 		minetest.register_on_player_receive_fields(function(player, formname, fields)
-			if fields[form.name] then
+			if formname == "" and fields[form.name] then
 				local name = player:get_player_name()
 				opened = smartfs._show_(form,name,nil,true)
 				inventory_plus.set_inventory_formspec(player, opened:_getFS_(true))
 			end
-			print("Form: "..formname)
 		end)
 	else
 		print("[SMARTFS, WARNING!] No advanced inventories are installed")
@@ -66,12 +65,13 @@ function smartfs.add_to_inventory(form,icon,title)
 end
 
 -- Show a formspec to a user
-function smartfs._show_(form,player,params,dont_open)
+function smartfs._show_(form,player,params,is_inv)
 	local state = {
 		_ele = {},
 		def = form,
 		player = player,
 		param = params,
+		is_inv = is_inv,
 		get = function(self,name)
 			return self._ele[name]
 		end,
@@ -92,10 +92,15 @@ function smartfs._show_(form,player,params,dont_open)
 			return res
 		end,		
 		_show_ = function(self)
-			local res = self:_getFS_(true)
-			print ("FS: "..res)
-			minetest.show_formspec(player,form.name,res)
-			return res
+			if self.is_inv then
+				if unified_inventory then
+					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.player), self.def.name)
+				end
+			else
+				local res = self:_getFS_(true)
+				print ("FS: "..res)
+				minetest.show_formspec(player,form.name,res)
+			end
 		end,
 		load = function(self,file)
 			local file = io.open(file, "r")
@@ -192,7 +197,7 @@ function smartfs._show_(form,player,params,dont_open)
 	}
 	if form._reg(state)~=false then
 		smartfs.opened[player] = state
-		if dont_open==nil then
+		if is_inv~=true then
 			state:_show_()
 		end
 	end
@@ -203,7 +208,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 	if smartfs.opened[name] then
-		if smartfs.opened[name].def.name == formname then
+		if smartfs.opened[name].def.name == formname or smartfs.opened[name].is_inv then
 			local state = smartfs.opened[name]
 			
 			if (fields.quit == "true") then
