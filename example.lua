@@ -21,7 +21,7 @@ end)
 
 l = smartfs.create("smartfs:load",function(state)
 	state:load(minetest.get_modpath("smartfs").."/example.smartfs")
-	state:get("btn"):onClick(function(self,state)
+	state:get("btn"):click(function(self,state)
 		print("Button clicked!")
 	end)
 	return true
