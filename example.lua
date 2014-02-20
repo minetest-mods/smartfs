@@ -27,7 +27,7 @@ l = smartfs.create("smartfs:load",function(state)
 	return true
 end)
 
-smartfs.add_to_inventory(l)
+smartfs.add_to_inventory(l,"icon.png","SmartFS")
 
 minetest.register_chatcommand("s", {
 	params = "",

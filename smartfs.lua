@@ -35,7 +35,7 @@ function smartfs.element(name,data)
 	return smartfs._edef[name]
 end
 
-function smartfs.add_to_inventory(form,icon)
+function smartfs.add_to_inventory(form,icon,title)
 	if unified_inventory then
 		unified_inventory.register_button(form.name, {
 			type = "image",
@@ -48,6 +48,18 @@ function smartfs.add_to_inventory(form,icon)
 				return {formspec=opened:_getFS_(false)}
 			end
 		})
+	elseif inventory_plus then
+		minetest.register_on_joinplayer(function(player)
+			inventory_plus.register_button(player,form.name,title)
+		end)
+		minetest.register_on_player_receive_fields(function(player, formname, fields)
+			if fields[form.name] then
+				local name = player:get_player_name()
+				opened = smartfs._show_(form,name,nil,true)
+				inventory_plus.set_inventory_formspec(player, opened:_getFS_(true))
+			end
+			print("Form: "..formname)
+		end)
 	else
 		print("[SMARTFS, WARNING!] No advanced inventories are installed")
 	end
