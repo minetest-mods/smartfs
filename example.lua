@@ -27,6 +27,8 @@ l = smartfs.create("smartfs:load",function(state)
 	return true
 end)
 
+smartfs.add_to_inventory(l)
+
 minetest.register_chatcommand("s", {
 	params = "",
 	description = "SmartFS test formspec 1: basics",

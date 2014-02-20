@@ -35,8 +35,26 @@ function smartfs.element(name,data)
 	return smartfs._edef[name]
 end
 
+function smartfs.add_to_inventory(form,icon)
+	if unified_inventory then
+		unified_inventory.register_button(form.name, {
+			type = "image",
+			image = icon,
+		})
+		unified_inventory.register_page(form.name, {
+			get_formspec = function(player, formspec)
+				local name = player:get_player_name()
+				opened = smartfs._show_(form,name,nil,true)				
+				return {formspec=opened:_getFS_(false)}
+			end
+		})
+	else
+		print("[SMARTFS, WARNING!] No advanced inventories are installed")
+	end
+end
+
 -- Show a formspec to a user
-function smartfs._show_(form,player,params)
+function smartfs._show_(form,player,params,dont_open)
 	local state = {
 		_ele = {},
 		def = form,
@@ -51,14 +69,18 @@ function smartfs._show_(form,player,params)
 		size = function(self,w,h)
 			self._size = {w=w,h=h}
 		end,
-		_show_ = function(self)
+		_getFS_ = function(self,size)
 			local res = ""
-			if self._size then
+			if self._size and size then
 				res = "size["..self._size.w..","..self._size.h.."]"
 			end
 			for key,val in pairs(self._ele) do
 				res = res .. val:build()
 			end
+			return res
+		end,		
+		_show_ = function(self)
+			local res = self:_getFS_(true)
 			print ("FS: "..res)
 			minetest.show_formspec(player,form.name,res)
 			return res
@@ -158,8 +180,11 @@ function smartfs._show_(form,player,params)
 	}
 	if form._reg(state)~=false then
 		smartfs.opened[player] = state
-		state:_show_()
+		if dont_open==nil then
+			state:_show_()
+		end
 	end
+	return state
 end
 
 -- Receive fields from formspec
