@@ -16,7 +16,7 @@ smartfs = {
 -- Register forms and elements
 function smartfs.create(name,onload)
 	if smartfs._fdef[name] then
-		throw("Form "..name.." already exists!")
+		error("Form "..name.." already exists!")
 	end
 	
 	smartfs._fdef[name] = {
@@ -29,7 +29,7 @@ function smartfs.create(name,onload)
 end
 function smartfs.element(name,data)
 	if smartfs._edef[name] then
-		throw("Element type "..name.." already exists!")
+		error("Element type "..name.." already exists!")
 	end
 	smartfs._edef[name] = data
 	return smartfs._edef[name]
@@ -171,11 +171,11 @@ function smartfs._show_(form,player,params,is_inv)
 			local type = smartfs._edef[typen]
 			
 			if not type then
-				throw("Element type "..typen.." does not exist!")
+				error("Element type "..typen.." does not exist!")
 			end
 
 			if self._ele[data.name] then
-				throw("Element "..data.name.." already exists")
+				error("Element "..data.name.." already exists")
 			end
 			data.type = typen
 
