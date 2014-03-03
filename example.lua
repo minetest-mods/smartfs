@@ -43,3 +43,16 @@ minetest.register_chatcommand("l", {
 		l:show(name)
 	end,
 })
+
+minetest.register_chatcommand("d", {
+	params = "",
+	description = "SmartFS test formspec 3: dynamic",
+	func = function(name, param)
+		local state = smartfs.dynamic("smartfs:dyn_form", name)
+		state:load(minetest.get_modpath("smartfs").."/example.smartfs")
+		state:get("btn"):click(function(self,state)
+			print("Button clicked!")
+		end)
+		state:show()
+	end,
+})

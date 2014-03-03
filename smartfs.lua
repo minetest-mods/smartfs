@@ -28,6 +28,13 @@ function smartfs.create(name,onload)
 	
 	return smartfs._fdef[name]
 end
+function smartfs.dynamic(name,player)
+	print ("[SMARTFS, WARNING!] On the fly forms are being used. May cause bad things to happen")
+	local state = smartfs._makeState_({name=name},player,nil,false)
+	state.show = state._show_
+	smartfs.opened[player] = state
+	return state
+end
 function smartfs.element(name,data)
 	if smartfs._edef[name] then
 		error("Element type "..name.." already exists!")
@@ -212,6 +219,7 @@ end
 -- Show a formspec to a user
 function smartfs._show_(form,player,params,is_inv)
 	local state = smartfs._makeState_(form,player,params,is_inv)
+	state.show = state._show_
 	if form._reg(state)~=false then
 		if is_inv~=true then
 			smartfs.opened[player] = state		
