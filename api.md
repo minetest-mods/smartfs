@@ -6,8 +6,13 @@
 * dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
 * add\_to\_inventory( name,icon,title ) - Adds a form to an installed advanced inventory.
 * inventory_mod() - Returns the name of an installed advanced inventory, or null.
+* 
 
 ##Form
+
+* form:show( playername ) - shows the form to a player.
+
+##State
 
 * state:size( width,height ) - sets the forms width and height.
 * state:button( x,y,w,h,name,text ) - create a new button at x,y with name and caption (text)
