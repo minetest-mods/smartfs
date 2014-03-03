@@ -6,7 +6,8 @@
 smartfs = {
 	_fdef = {},
 	_edef = {},
-	opened = {}
+	opened = {},
+	inv = {}
 }
 
 -----------------------------------------------------------------
@@ -33,6 +34,16 @@ function smartfs.element(name,data)
 	end
 	smartfs._edef[name] = data
 	return smartfs._edef[name]
+end
+
+function smartfs.inventory_mod()
+	if unified_inventory then
+		return "unified_inventory"
+	elseif inventory_plus then
+		return "inventory_plus"
+	else
+		return nil
+	end
 end
 
 function smartfs.add_to_inventory(form,icon,title)
@@ -64,9 +75,8 @@ function smartfs.add_to_inventory(form,icon,title)
 	end
 end
 
--- Show a formspec to a user
-function smartfs._show_(form,player,params,is_inv)
-	local state = {
+function smartfs._makeState_(form,player,params,is_inv)
+	return {
 		_ele = {},
 		def = form,
 		player = player,
@@ -197,51 +207,68 @@ function smartfs._show_(form,player,params,is_inv)
 			return self._ele[data.name]
 		end
 	}
+end
+
+-- Show a formspec to a user
+function smartfs._show_(form,player,params,is_inv)
+	local state = smartfs._makeState_(form,player,params,is_inv)
 	if form._reg(state)~=false then
-		smartfs.opened[player] = state
 		if is_inv~=true then
+			smartfs.opened[player] = state		
 			state:_show_()
+		else
+			smartfs.inv[player] = state
 		end
 	end
 	return state
 end
 
 -- Receive fields from formspec
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-	local name = player:get_player_name()
-	if smartfs.opened[name] then
-		if smartfs.opened[name].def.name == formname or smartfs.opened[name].is_inv then
-			local state = smartfs.opened[name]
-			
-			if (fields.quit == "true") then
-				smartfs.opened[name] = nil
+local function _sfs_recieve_(state,name,fields)
+	if (fields.quit == "true") then
+		if not state.is_inv then
+			smartfs.opened[name] = nil
+		end
+		return true
+	end
+	
+	print(dump(fields))
+		
+	for key,val in pairs(fields) do
+		if state._ele[key] then
+			state._ele[key].data.value = val
+		end
+	end
+	for key,val in pairs(state._ele) do
+		if val.submit then
+			if (val:submit(fields)==true) then
 				return true
 			end
-			
-			print(dump(fields))
-				
-			for key,val in pairs(fields) do
-				if state._ele[key] then
-					state._ele[key].data.value = val
-				end
-			end
-			for key,val in pairs(state._ele) do
-				if val.submit then
-					if (val:submit(fields)==true) then
-						return true
-					end
-				end
-			end
-			if state.closed ~= true then
-				state:_show_()
-			else
-				minetest.show_formspec(name,"","size[5,1]label[0,0;Formspec closing not yet created!]")
-				smartfs.opened[name] = nil
-			end
-			return true
+		end
+	end
+	if state.closed ~= true then
+		state:_show_()
+	else
+		minetest.show_formspec(name,"","size[5,1]label[0,0;Formspec closing not yet created!]")
+		if not state.is_inv then
+			smartfs.opened[name] = nil
+		end
+	end
+	return true
+end
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	local name = player:get_player_name()
+	if smartfs.opened[name] and not smartfs.opened[name].is_inv then
+		if smartfs.opened[name].def.name == formname then
+			local state = smartfs.opened[name]			
+			return _sfs_recieve_(state,name,fields)
 		else
 			smartfs.opened[name] = nil
 		end
+	elseif smartfs.inv[name] and smartfs.inv[name].is_inv then
+		local state = smartfs.inv[name]			
+		return _sfs_recieve_(state,name,fields)
 	end
 	return false
 end)
