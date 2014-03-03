@@ -59,7 +59,7 @@ minetest.register_chatcommand("sfs_d", {
 
 minetest.register_chatcommand("sfs_lc", {
 	params = "",
-	description = "SmartFS test formspec 3: dynamic",
+	description = "SmartFS test formspec 4: smartfs.create error catching",
 	func = function(name, param)
 		smartfs.create("asdinas",function() end)
 	end
