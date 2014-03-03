@@ -67,3 +67,15 @@ Now that you have located your element you can modify it.
 Smartfs supports adding a button to Inventory+ or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (only for inventory+).
 
     smartfs.add_to_inventory(form_name, icon, title)
+    
+## Dynamic forms
+Dynamic forms allow you to make a form without having to register it before the game finished loading.
+
+    local state = smartfs.dynamic("smartfs:dyn_form", name)
+    state:load(minetest.get_modpath("smartfs").."/example.smartfs")
+    state:get("btn"):click(function(self,state)
+    	print("Button clicked!")
+    end)
+    state:show()
+    
+Make sure you call state:show()
