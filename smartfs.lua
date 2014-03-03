@@ -19,6 +19,9 @@ function smartfs.create(name,onload)
 	if smartfs._fdef[name] then
 		error("Form "..name.." already exists!")
 	end
+	if smartfs.loaded and not smartfs._loaded_override then
+		error("[SMARTFS, ERROR] Forms should be declared while the game loads.")
+	end
 	
 	smartfs._fdef[name] = {
 		_reg = onload,
@@ -28,6 +31,13 @@ function smartfs.create(name,onload)
 	
 	return smartfs._fdef[name]
 end
+function smartfs.override_load_checks()
+	smartfs._loaded_override = true
+end
+
+minetest.after(0, function()
+	smartfs.loaded = true
+end)
 function smartfs.dynamic(name,player)
 	print ("[SMARTFS, WARNING!] On the fly forms are being used. May cause bad things to happen")
 	local state = smartfs._makeState_({name=name},player,nil,false)
