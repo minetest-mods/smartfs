@@ -28,110 +28,42 @@ A form is a rectangular area of the screen upon which all elements are placed. U
 
 The first argument is a unique string that identifies the form. The second argument is a function that should take a single argument called state which is used to set form properties like size and background color. State also has constructors for all form elements and can be used with state:element_name. Below is a quick example.
 
-    form_name = smartfs.create("My Form",
-                               function(state)
-                                   --sets the form's size
-                                   -- (width, hieght)
-                                   state:size(5,5)
-
-                                   --creates a label and places it on the form
-                                   --(x-pos, y-pos, name, text)
-                                   state:label(3,3,"ly label", "A label!")
-                               end)
+    form_name = smartfs.create("My Form",function(state)
+        --sets the form's size
+        -- (width, hieght)
+        state:size(5,5)
+        
+        --creates a label and places it on the form
+        --(x-pos, y-pos, name, text)
+        state:label(3,3,"ly label", "A label!")
+    end)
+    
 ## Showing Forms
 Forms can be shown to the player by using the show(target) function. The target argument is the name of the player that will see the form.
 
     form_name:show("singleplayer")
+    
+## Modifying Elements
+Elements have functions of the form element:function(args) where you need to have access to the element object.
+
+You can get the element object by assigning a variable to its creation function like so:
+
+    local button1 = state:button(0,0, 1,4, "btn1", "A button")
+    --button1 is now a table representing the button
+
+You can also get the element by using state:get(name). The example below will retrieve a button with the name "btn1":
+
+    button1 = state:get("btn1")
+    --or
+    state:get("btn1"):onClick(your\_onclick\_function
+
+Both of these methods should be used inside the form creation callback function, the function you pass to smartfs.create, or in event callbacks.
+
+Now that you have located your element you can modify it.
+
+    button1:setPos(4,0)
 
 ## Inventory Support
-Smartfs supports adding a button to Inventory+ or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image(only for unified inventory), and title is the button text(only for inventory+.
+Smartfs supports adding a button to Inventory+ or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (only for inventory+).
 
-    smartfs.add_to_inventory(form_name, "my form icon.png", "Open My Form")
-
-##Creating New Elements
-
-#Full API
-##Smartfs
-
-* create( name,function ) - creates a new form with name and adds elements to it by running function.
-* add\_to\_inventory( name,icon,title ) - adds a button with image icon if unified inventory or text title if inventory+ that links to the form belonging to the given name.
-
-##Form
-
-* state:size( width,height ) - sets the forms width and height.
-
-##Button
-
-###Creation
-
-* state:button( x,y,w,h,name,text ) - create a new button at x,y with name and caption (text)
-
-###Manipulation
-
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
-* element:setText( text ) - set the caption of the button
-* element:getText() - get the caption of the button
-* element:setImage( filename ) - sets the background of the button
-* element:getImage() - get the background filename of the button
-
-###Event Handling
-
-* element:onClick( func(self,state) ) - specify a function to run when the button is clicked
-
-##Toggle Button
-
-###Creation
-
-* state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
-
-###Manipulation
-
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
-* element:getText() - get the text of the toggle option
-* element:setId( filename ) - sets the selected id
-* element:getId() - get the selected id
-
-###Event Handling
-
-* element:onToggle( func(self,state) ) - specify a function to run when the value if toggled
-
-##Label
-
-###Creation
-
-* state:label( x,y,name,text ) - create a new label at x,y with name and caption (text)
-
-###Manipulation
-
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setText( text ) - set the caption of the label
-* element:getText() - get the caption of the label
-
-##Field and Text Area
-###Creation
-
-* state:field( x,y,w,h,name,label ) - create a new field at x,y with label
-* state:pwdfield( x,y,w,h,name,label ) - create a password field
-* state:textarea( x,y,w,h,name,label ) - create a new textarea
-
-###Manipulation
-
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
-* element:setText( text ) - set the caption of the button
-* element:getText() - get the caption of the field
-* element:setImage( filename ) - sets the background of the field
-* element:getImage() - get the background filename of the field
-
-###Event Handling
-
-* element:onClick( func(self,state) ) - specify a function to run when the field is clicked
+    smartfs.add_to_inventory(form_name, icon, title)
