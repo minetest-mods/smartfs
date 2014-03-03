@@ -1,8 +1,10 @@
 #Full API
 ##Smartfs
 
-* create( name,function ) - creates a new form with name and adds elements to it by running function.
-* add\_to\_inventory( name,icon,title ) - adds a button with image icon if unified inventory or text title if inventory+ that links to the form belonging to the given name.
+* create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
+* element( name, data ) - creates a new element type.
+* add\_to\_inventory( name,icon,title ) - Adds a form to an installed advanced inventory.
+* inventory_mod() - Returns the name of an installed advanced inventory, or null.
 
 ##Form
 
@@ -27,7 +29,7 @@
 
 ###Event Handling
 
-* element:onClick( func(self,state) ) - specify a function to run when the button is clicked
+* element:click( func(self,state) ) - specify a function to run when the button is clicked
 
 ##Toggle Button
 
@@ -80,6 +82,3 @@
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
 
-###Event Handling
-
-* element:onClick( func(self,state) ) - specify a function to run when the field is clicked
