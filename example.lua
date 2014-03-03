@@ -29,14 +29,14 @@ end)
 
 smartfs.add_to_inventory(l,"icon.png","SmartFS")
 
-minetest.register_chatcommand("s", {
+minetest.register_chatcommand("sfs_s", {
 	params = "",
 	description = "SmartFS test formspec 1: basics",
 	func = function(name, param)
 		s:show(name)
 	end,
 })
-minetest.register_chatcommand("l", {
+minetest.register_chatcommand("sfs_l", {
 	params = "",
 	description = "SmartFS test formspec 2: loading",
 	func = function(name, param)
@@ -44,7 +44,7 @@ minetest.register_chatcommand("l", {
 	end,
 })
 
-minetest.register_chatcommand("d", {
+minetest.register_chatcommand("sfs_d", {
 	params = "",
 	description = "SmartFS test formspec 3: dynamic",
 	func = function(name, param)
@@ -55,4 +55,12 @@ minetest.register_chatcommand("d", {
 		end)
 		state:show()
 	end,
+})
+
+minetest.register_chatcommand("sfs_lc", {
+	params = "",
+	description = "SmartFS test formspec 3: dynamic",
+	func = function(name, param)
+		smartfs.create("asdinas",function() end)
+	end
 })
