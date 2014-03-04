@@ -23,12 +23,12 @@ to the top of any files that use it.
 
 To use smartfs as a mod, add it to your game's mods folder or to the user mods folder and enable it.
 
-## Creating Forms
+## Creating and showing forms
 A form is a rectangular area of the screen upon which all elements are placed. Use the smartfs.create() function to create a new form. This function takes two arguments and returns a form object.
 
 The first argument is a unique string that identifies the form. The second argument is a function that should take a single argument called state which is used to set form properties like size and background color. State also has constructors for all form elements and can be used with state:element_name. Below is a quick example.
 
-    form_name = smartfs.create("My Form",function(state)
+    myform = smartfs.create("My Form",function(state)
         --sets the form's size
         -- (width, hieght)
         state:size(5,5)
@@ -38,10 +38,17 @@ The first argument is a unique string that identifies the form. The second argum
         state:label(3,3,"ly label", "A label!")
     end)
     
-## Showing Forms
 Forms can be shown to the player by using the show(target) function. The target argument is the name of the player that will see the form.
 
-    form_name:show("singleplayer")
+    myform:show("singleplayer")
+    
+Here is a list of steps the library takes.
+* You create a new form using smartfs.create().
+* The form is registered and stored for later use.
+* You show a form to a player using the myform:show()
+* The state is created and stored.
+* The function in smartfs.create runs and creates the elements.
+* The form is displayed to the player.
     
 ## Modifying Elements
 Elements have functions of the form element:function(args) where you need to have access to the element object.
