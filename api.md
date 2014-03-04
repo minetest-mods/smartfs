@@ -21,7 +21,6 @@
 * state:close() - closes the form (does not work yet, due to no MT api support).
 * state:load( filepath ) - Loads elements from a file.
 * state:save( filepath ) - Saves elements to a file.
-* state:
 * state:button( x,y,w,h,name,text ) - create a new button at x,y with name and caption (text)
 * state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
 * state:label( x,y,name,text ) - create a new label at x,y with name and caption (text)
