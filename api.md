@@ -1,11 +1,11 @@
 #Full API
 ##Smartfs
 
-* create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
-* element( name, data ) - creates a new element type.
-* dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
-* add\_to\_inventory( name,icon,title ) - Adds a form to an installed advanced inventory.
-* inventory_mod() - Returns the name of an installed advanced inventory, or null.
+* smartfs.create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
+* smartfs.element( name, data ) - creates a new element type.
+* smartfs.dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
+* smartfs.add\_to\_inventory( name,icon,title ) - Adds a form to an installed advanced inventory.
+* smartfs.inventory_mod() - Returns the name of an installed advanced inventory, or null.
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 
 ##Form
