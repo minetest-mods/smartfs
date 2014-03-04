@@ -11,6 +11,7 @@
 ##Form
 
 * form:show( playername [, parameters] ) - shows the form to a player.
+* form.name - the name of the form.
 
 ##State
 
