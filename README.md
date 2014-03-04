@@ -35,7 +35,7 @@ The first argument is a unique string that identifies the form. The second argum
         
         --creates a label and places it on the form
         --(x-pos, y-pos, name, text)
-        state:label(3,3,"ly label", "A label!")
+        state:label(3,3,"label1", "A label!")
     end)
     
 Forms can be shown to the player by using the show(target) function. The target argument is the name of the player that will see the form.
