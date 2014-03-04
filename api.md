@@ -10,17 +10,33 @@
 
 ##Form
 
-* form:show( playername ) - shows the form to a player.
+* form:show( playername [, parameters] ) - shows the form to a player.
 
 ##State
 
+### Methods
 * state:size( width,height ) - sets the forms width and height.
+* state:get( name ) - gets an element by name.
+* state:show() - reshows the form to the player.
+* state:close() - closes the form (does not work yet, due to no MT api support).
+* state:load( filepath ) - Loads elements from a file.
+* state:save( filepath ) - Saves elements to a file.
+* state:
 * state:button( x,y,w,h,name,text ) - create a new button at x,y with name and caption (text)
 * state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
 * state:label( x,y,name,text ) - create a new label at x,y with name and caption (text)
 * state:field( x,y,w,h,name,label ) - create a new field at x,y with label
   * state:pwdfield( x,y,w,h,name,label ) - create a password field
   * state:textarea( x,y,w,h,name,label ) - create a new textarea
+* state:image( x,y,w,h,name,imagepath ) - create an image box.
+* state:checkbox( x,y,name,label,selected ) - create a check box.
+* state:element( element_type, data ) - Semi-private, create an element with type and data.
+
+### Variables
+* state.player - The name of the player.
+* state.param - The parameters supplied by form:show.
+* state.def - The form definition.
+* state.is_inv - Boolean which is true if this form is being shown as an inventory.
 
 ##Button
 
