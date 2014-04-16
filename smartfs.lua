@@ -583,6 +583,78 @@ smartfs.element("checkbox",{
 	end
 })
 
+smartfs.element("list",{
+        build = function(self)
+                local listformspec = "textlist["..
+                                     self.data.pos.x..","..self.data.pos.y..
+                                     ";"..
+                                     self.data.size.w..","..self.data.size.h..
+                                     ";"..
+                                     self.name..
+                                     ";"
+
+                --loop through the list's items and add them to the formspec
+                for i,value in ipairs(self.data.items) do
+                    listformspec = listformspec..value..","
+                end
+                listformspec = string.sub(listformspec, 0, -2) --removes extra ,
+                --close out the list items section
+                listformspec = listformspec..";"
+                
+                --TODO support selected idx and transparency 
+
+                --close formspec definition and return formspec
+                listformspec = listformspec.."]"
+                return listformspec
+        end,
+
+        submit = function(self,fields)
+                if fields[self.name] then
+                    local _type = string.sub(fields[self.data.name],1,3)
+                    local index = string.sub(fields[self.data.name],5)
+                    if _type == "CHG" and self._click then
+                        self:_click(self.root, index)
+                    elseif _type == "DCL" and self._doubleClick then
+                        self:_doubleClick(self.root, index)
+                    end
+                end
+        end,
+        onClick = function(self, func)
+                self._click = func
+        end,
+        onDoubleClick = function(self, func)
+                self._doubleClick = func
+        end,
+        setPosition = function(self,x,y)
+        self.data.pos = {x=x,y=y}
+    end,
+    getPosition = function(self,x,y)
+        return self.data.pos
+    end,
+    setSize = function(self,w,h)
+        self.data.size = {w=w,h=h}
+    end,
+    getSize = function(self,x,y)
+        return self.data.size
+    end,
+	--adds an item to the end of the list
+	--TODO allow an optional pos argument to be passed
+	addItem = function(self, item)
+	        table.insert(self.data.items, item)
+	end,
+	--Deletes the last item of the list
+	--TODO allow an optional pos argument to be passed
+	removeItem = function(self)
+	        table.remove(self.data.items)
+	end,
+	--removes the last item and returns it
+	popItem = function(self)
+	        local item = self.data.items[#self.data.items]
+	        table.remove(self.data.items)
+	        return item
+	end
+})
+
 smartfs.element("code",{
 	build = function(self)
 		if self._build then
