@@ -594,6 +594,9 @@ smartfs.element("list",{
                                      ";"
 
                 --loop through the list's items and add them to the formspec
+				if not self.data.items then
+					self.data.items = {" "}
+				end
                 for i,value in ipairs(self.data.items) do
                     listformspec = listformspec..value..","
                 end
