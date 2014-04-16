@@ -590,7 +590,7 @@ smartfs.element("list",{
                                      ";"..
                                      self.data.size.w..","..self.data.size.h..
                                      ";"..
-                                     self.name..
+                                     self.data.name..
                                      ";"
 
                 --loop through the list's items and add them to the formspec
