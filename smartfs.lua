@@ -594,9 +594,9 @@ smartfs.element("list",{
                                      ";"
 
                 --loop through the list's items and add them to the formspec
-				if not self.data.items then
-					self.data.items = {" "}
-				end
+		if not self.data.items then
+			self.data.items = {" "}
+		end
                 for i,value in ipairs(self.data.items) do
                     listformspec = listformspec..value..","
                 end
@@ -643,15 +643,24 @@ smartfs.element("list",{
 	--adds an item to the end of the list
 	--TODO allow an optional pos argument to be passed
 	addItem = function(self, item)
+		if not self.data.items then
+			self.data.items = {" "}
+		end
 	        table.insert(self.data.items, item)
 	end,
 	--Deletes the last item of the list
 	--TODO allow an optional pos argument to be passed
 	removeItem = function(self)
+		if not self.data.items then
+			self.data.items = {" "}
+		end
 	        table.remove(self.data.items)
 	end,
 	--removes the last item and returns it
 	popItem = function(self)
+		if not self.data.items then
+			self.data.items = {" "}
+		end		
 	        local item = self.data.items[#self.data.items]
 	        table.remove(self.data.items)
 	        return item
