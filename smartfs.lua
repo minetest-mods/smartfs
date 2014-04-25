@@ -610,7 +610,6 @@ smartfs.element("list",{
                 listformspec = listformspec.."]"
                 return listformspec
         end,
-
         submit = function(self,fields)
                 if fields[self.name] then
                     local _type = string.sub(fields[self.data.name],1,3)
@@ -622,48 +621,49 @@ smartfs.element("list",{
                     end
                 end
         end,
-        onClick = function(self, func)
-                self._click = func
-        end,
-        onDoubleClick = function(self, func)
-                self._doubleClick = func
-        end,
-        setPosition = function(self,x,y)
-        self.data.pos = {x=x,y=y}
-    end,
-    getPosition = function(self,x,y)
-        return self.data.pos
-    end,
-    setSize = function(self,w,h)
-        self.data.size = {w=w,h=h}
-    end,
-    getSize = function(self,x,y)
-        return self.data.size
-    end,
-	--adds an item to the end of the list
-	--TODO allow an optional pos argument to be passed
+	onClick = function(self, func)
+		self._click = func
+	end,
+	click = function(self, func)
+		self._click = func
+	end,
+	onDoubleClick = function(self, func)
+		self._doubleClick = func
+	end,
+	doubleclick = function(self, func)
+		self._doubleClick = func
+	end,
+	setPosition = function(self,x,y)
+		self.data.pos = {x=x,y=y}
+	end,
+	getPosition = function(self,x,y)
+		return self.data.pos
+	end,
+	setSize = function(self,w,h)
+		self.data.size = {w=w,h=h}
+	end,
+	getSize = function(self,x,y)
+		return self.data.size
+	end,
 	addItem = function(self, item)
 		if not self.data.items then
 			self.data.items = {" "}
 		end
-	        table.insert(self.data.items, item)
+		table.insert(self.data.items, item)
 	end,
-	--Deletes the last item of the list
-	--TODO allow an optional pos argument to be passed
-	removeItem = function(self)
+	removeItem = function(self,idx)
 		if not self.data.items then
 			self.data.items = {" "}
 		end
-	        table.remove(self.data.items)
+		table.remove(self.data.items,idx)
 	end,
-	--removes the last item and returns it
 	popItem = function(self)
 		if not self.data.items then
 			self.data.items = {" "}
 		end		
-	        local item = self.data.items[#self.data.items]
-	        table.remove(self.data.items)
-	        return item
+		local item = self.data.items[#self.data.items]
+		table.remove(self.data.items)
+		return item
 	end
 })
 
