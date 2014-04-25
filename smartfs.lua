@@ -194,6 +194,9 @@ function smartfs._makeState_(form,player,params,is_inv)
 		checkbox = function(self,x,y,name,label,selected)
 			return self:element("checkbox",{pos={x=x,y=y},name=name,value=selected,label=label})
 		end,
+		listbox = function(self,x,y,w,h,name)
+			return self:element("list", { pos={x=x,y=y}, size={w=w,h=h}, name=name })
+		end,
 		element = function(self,typen,data)
 			local type = smartfs._edef[typen]
 			
