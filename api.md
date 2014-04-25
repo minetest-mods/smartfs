@@ -1,6 +1,5 @@
 #Full API
 ##Smartfs
-
 * smartfs.create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
 * smartfs.element( name, data ) - creates a new element type.
 * smartfs.dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
@@ -9,7 +8,6 @@
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 
 ##Form
-
 * form:show( playername [, parameters] ) - shows the form to a player.
 * form.name - the name of the form.
 
@@ -39,7 +37,6 @@
 * state.is_inv - Boolean which is true if this form is being shown as an inventory.
 
 ##Button
-
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
 * element:setSize( w,h ) - set the size
@@ -51,7 +48,6 @@
 * element:click( func(self,state) ) - specify a function to run when the button is clicked
 
 ##Toggle Button
-
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
 * element:setSize( w,h ) - set the size
@@ -62,7 +58,6 @@
 * element:onToggle( func(self,state) ) - specify a function to run when the value if toggled
 
 ##Label
-
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
 * element:setText( text ) - set the caption of the label
@@ -77,6 +72,17 @@
 * element:getText() - get the caption of the field
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
+
+##List box
+* element:onClick( func(self,state,idx) ) - function to run when listbox item idx is clicked
+* element:onDoubleClick( func(self,state,idx) ) - function to run when listbox item idx is double clicked
+* element:setPosition( x,y ) - set the position
+* element:getPosition() - returns {x=x, y=y}
+* element:setSize( w,h ) - set the size
+* element:getSize() - gets the size {w=w, h=h}
+* element:addItem( item ) - appends and item
+* element:removeItem( idx ) - remove item
+* element:popItem() - removes last item and returns
 
 ##Custom Code
 * element:onSubmit( func(self) ) - on form submit
