@@ -77,3 +77,9 @@
 * element:getText() - get the caption of the field
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
+
+##Custom Code
+* element:onSubmit( func(self) ) - on form submit
+* element:onBuild( func(self) ) - run every time form is shown. You can set code from here
+* element:setCode( code ) - set the formspec code
+* element:getCode( code ) - get the formspec code
