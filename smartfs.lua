@@ -166,8 +166,9 @@ function smartfs._makeState_(form,player,params,is_inv)
 			end
 			return false
 		end,
-		button = function(self,x,y,w,h,name,text)
-			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text,closes=false})
+		button = function(self,x,y,w,h,name,text,exitf)
+			if exitf == nil then exitf = false end
+			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text,closes=exitf})
 		end,
 		label = function(self,x,y,name,text)
 			return self:element("label",{pos={x=x,y=y},name=name,value=text})
