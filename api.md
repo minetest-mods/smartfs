@@ -8,7 +8,7 @@
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 
 ##Form
-* form:show( playername [, parameters] ) - shows the form to a player.
+* form:show( playername [, parameters] ) - shows the form to a player. See state.param.
 * form.name - the name of the form.
 
 ##State
