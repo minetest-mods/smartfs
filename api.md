@@ -1,5 +1,6 @@
 #Full API
 ##Smartfs
+* smartfs( name ) - returns the form regisered with the name 'name'
 * smartfs.create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
 * smartfs.element( name, data ) - creates a new element type.
 * smartfs.dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
