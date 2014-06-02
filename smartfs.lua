@@ -11,7 +11,7 @@ smartfs = {
 }
 
 -- the smartfs() function
-function smartfs.__call(self, first)
+function smartfs.__call(self, name)
 	return smartfs._fdef[name]
 end
 
