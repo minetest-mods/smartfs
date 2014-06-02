@@ -10,9 +10,10 @@ smartfs = {
 	inv = {}
 }
 
------------------------------------------------------------------
---------------------------  THE API  ----------------------------
------------------------------------------------------------------
+-- the smartfs() function
+function smartfs.__call(self, first)
+	return smartfs._fdef[name]
+end
 
 -- Register forms and elements
 function smartfs.create(name,onload)
