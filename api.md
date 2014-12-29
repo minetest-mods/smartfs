@@ -29,6 +29,7 @@
   * state:pwdfield( x,y,w,h,name,label ) - create a password field
   * state:textarea( x,y,w,h,name,label ) - create a new textarea
 * state:image( x,y,w,h,name,imagepath ) - create an image box.
+* state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
 
@@ -85,6 +86,19 @@
 * element:addItem( item ) - appends and item
 * element:removeItem( idx ) - remove item
 * element:popItem() - removes last item and returns
+
+##Inventory listing
+* element:setPosition( x,y ) - set the position
+* element:getPosition() - returns {x=x, y=y}
+* element:setSize( w,h ) - set the size
+* element:getSize() - gets the size {w=w, h=h}
+* element:setLocation( location ) - set a custom inventory location or nil for the default (current_player)
+  * element:usePosition( position ) - use a node metadata attached inventory of the node at the given positon
+  * element:useDetached( name ) - use a detached inventory with the given name
+  * element:usePlayer( name ) - use a player inventory other than the current player
+* element:getLocation() - returns the inventory location (default: current_player)
+* element:setIndex( index ) - set the inventory starting index
+* element:getIndex() - returns the inventory starting index
 
 ##Custom Code
 * element:onSubmit( func(self) ) - on form submit
