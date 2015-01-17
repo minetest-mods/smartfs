@@ -32,16 +32,16 @@ The first argument is a unique string that identifies the form. The second argum
         --sets the form's size
         -- (width, hieght)
         state:size(5,5)
-        
+
         --creates a label and places it on the form
         --(x-pos, y-pos, name, text)
         state:label(3,3,"label1", "A label!")
     end)
-    
+
 Forms can be shown to the player by using the show(target) function. The target argument is the name of the player that will see the form.
 
     myform:show("singleplayer")
-    
+
 Here is a list of steps the library takes.
 * You create a new form using smartfs.create().
 * The form is registered and stored for later use.
@@ -49,7 +49,7 @@ Here is a list of steps the library takes.
 * The state is created and stored.
 * The function in smartfs.create runs and creates the elements.
 * The form is displayed to the player.
-    
+
 ## Modifying Elements
 Elements have functions of the form element:function(args) where you need to have access to the element object.
 
@@ -73,8 +73,8 @@ Now that you have located your element you can modify it.
 ## Inventory Support
 Smartfs supports adding a button to Inventory+ or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (only for inventory+).
 
-    smartfs.add_to_inventory(form_name, icon, title)
-    
+    smartfs.add_to_inventory(form, icon, title)
+
 ## Dynamic forms
 Dynamic forms allow you to make a form without having to register it before the game finished loading.
 
@@ -84,5 +84,5 @@ Dynamic forms allow you to make a form without having to register it before the 
     	print("Button clicked!")
     end)
     state:show()
-    
+
 Make sure you call state:show()
