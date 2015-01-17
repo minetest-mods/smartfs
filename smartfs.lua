@@ -91,7 +91,7 @@ function smartfs.add_to_inventory(form,icon,title)
 		end)
 		return true
 	else
-		minetest.log("warning", "[SMARTFS] (Warning!) No advanced inventories are installed")
+		print("[SMARTFS] (Warning!) No advanced inventories are installed")
 		return false
 	end
 end
