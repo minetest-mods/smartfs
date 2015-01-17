@@ -297,7 +297,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 	elseif smartfs.inv[name] and smartfs.inv[name].is_inv then
 		local state = smartfs.inv[name]
-		return _sfs_recieve_(state,name,fields)
+		_sfs_recieve_(state,name,fields)
 	end
 	return false
 end)
