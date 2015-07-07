@@ -18,10 +18,10 @@ end
 -- Register forms and elements
 function smartfs.create(name,onload)
 	if smartfs._fdef[name] then
-		error("Form "..name.." already exists!")
+		error("SmartFS - (Error) Form "..name.." already exists!")
 	end
 	if smartfs.loaded and not smartfs._loaded_override then
-		error("[SMARTFS, ERROR] Forms should be declared while the game loads.")
+		error("SmartFS - (Error) Forms should be declared while the game loads.")
 	end
 
 	smartfs._fdef[name] = {
@@ -40,7 +40,10 @@ minetest.after(0, function()
 	smartfs.loaded = true
 end)
 function smartfs.dynamic(name,player)
-	print ("[SMARTFS, WARNING!] On the fly forms are being used. May cause bad things to happen")
+	if not smartfs._dynamic_warned then
+		smartfs._dynamic_warned = true
+		print("SmartFS - (Warning) On the fly forms are being used. May cause bad things to happen")
+	end
 	local state = smartfs._makeState_({name=name},player,nil,false)
 	state.show = state._show_
 	smartfs.opened[player] = state
@@ -48,7 +51,7 @@ function smartfs.dynamic(name,player)
 end
 function smartfs.element(name,data)
 	if smartfs._edef[name] then
-		error("Element type "..name.." already exists!")
+		error("SmartFS - (Error) Element type "..name.." already exists!")
 	end
 	smartfs._edef[name] = data
 	return smartfs._edef[name]
@@ -91,7 +94,6 @@ function smartfs.add_to_inventory(form,icon,title)
 		end)
 		return true
 	else
-		print("[SMARTFS] (Warning!) No advanced inventories are installed")
 		return false
 	end
 end
@@ -131,7 +133,6 @@ function smartfs._makeState_(form,player,params,is_inv)
 				end
 			else
 				local res = self:_getFS_(true)
-				print ("FS: "..res)
 				minetest.show_formspec(player,form.name,res)
 			end
 		end,
@@ -260,8 +261,6 @@ local function _sfs_recieve_(state,name,fields)
 		end
 		return true
 	end
-
-	print(dump(fields))
 
 	for key,val in pairs(fields) do
 		if state._ele[key] then
