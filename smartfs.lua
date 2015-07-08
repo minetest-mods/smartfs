@@ -103,7 +103,7 @@ function smartfs._makeState_(form,player,params,is_inv)
 		_ele = {},
 		def = form,
 		player = player,
-		param = params,
+		param = params or {},
 		is_inv = is_inv,
 		get = function(self,name)
 			return self._ele[name]
@@ -171,6 +171,15 @@ function smartfs._makeState_(form,player,params,is_inv)
 			end
 			return false
 		end,
+		setparam = function(self,key,value)
+			if not key then return end
+			self.param[key] = value
+			return true
+		end,
+		getparam = function(self,key,default)
+			if not key then return end
+			return self.param[key] or default
+		end,
 		button = function(self,x,y,w,h,name,text,exitf)
 			if exitf == nil then exitf = false end
 			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text,closes=exitf})
@@ -200,8 +209,8 @@ function smartfs._makeState_(form,player,params,is_inv)
 		checkbox = function(self,x,y,name,label,selected)
 			return self:element("checkbox",{pos={x=x,y=y},name=name,value=selected,label=label})
 		end,
-		listbox = function(self,x,y,w,h,name)
-			return self:element("list", { pos={x=x,y=y}, size={w=w,h=h}, name=name })
+		listbox = function(self,x,y,w,h,name,selected,transparent)
+			return self:element("list", { pos={x=x,y=y}, size={w=w,h=h}, name=name, selected=selected, transparent=transparent })
 		end,
 		inventory = function(self,x,y,w,h,name)
 			return self:element("inventory", { pos={x=x,y=y}, size={w=w,h=h}, name=name })
@@ -595,29 +604,22 @@ smartfs.element("checkbox",{
 
 smartfs.element("list",{
         build = function(self)
-                local listformspec = "textlist["..
-                                     self.data.pos.x..","..self.data.pos.y..
-                                     ";"..
-                                     self.data.size.w..","..self.data.size.h..
-                                     ";"..
-                                     self.data.name..
-                                     ";"
-
-                --loop through the list's items and add them to the formspec
 		if not self.data.items then
-			self.data.items = {" "}
+			self.data.items = {}
 		end
-                for i,value in ipairs(self.data.items) do
-                    listformspec = listformspec..value..","
-                end
-                listformspec = string.sub(listformspec, 0, -2) --removes extra ,
-                --close out the list items section
-                listformspec = listformspec..";"
+		local listformspec = "textlist["..
+					self.data.pos.x..","..self.data.pos.y..
+					";"..
+					self.data.size.w..","..self.data.size.h..
+					";"..
+					self.data.name..
+					";"..
+					table.concat(self.data.items, ",")..
+					";"..
+					tostring(self.data.selected or "")..
+					";"..
+					tostring(self.data.transparent or "false").."]"
 
-                --TODO support selected idx and transparency
-
-                --close formspec definition and return formspec
-                listformspec = listformspec.."]"
                 return listformspec
         end,
         submit = function(self,fields)
@@ -657,19 +659,19 @@ smartfs.element("list",{
 	end,
 	addItem = function(self, item)
 		if not self.data.items then
-			self.data.items = {" "}
+			self.data.items = {}
 		end
 		table.insert(self.data.items, item)
 	end,
 	removeItem = function(self,idx)
 		if not self.data.items then
-			self.data.items = {" "}
+			self.data.items = {}
 		end
 		table.remove(self.data.items,idx)
 	end,
 	popItem = function(self)
 		if not self.data.items then
-			self.data.items = {" "}
+			self.data.items = {}
 		end
 		local item = self.data.items[#self.data.items]
 		table.remove(self.data.items)
