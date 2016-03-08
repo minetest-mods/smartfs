@@ -1,0 +1,1 @@
+A library to allow mods to make Formspecs, a form of GUI, easily.
