@@ -1,5 +1,6 @@
 ---------------------------
 -- SmartFS: Smart Formspecs
+-- License: CC0 or WTFPL
 --    by Rubenwardy
 ---------------------------
 
