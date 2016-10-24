@@ -1,25 +1,36 @@
-dofile(minetest.get_modpath("smartfs").."/smartfs.lua")
 
-s = smartfs.create("smartfs:form",function(state)
+local s = smartfs.create("smartfs:form",function(state)
 	state:size(10,7)
 	state:label(2,0,"lbl","SmartFS example formspec!")
+	local usr = state:label(7,0,"user","")
+	if state.location.type ~= "nodemeta" then -- display location user name if it is user or inventory formspec
+		usr:setText(state.location.player)
+	end
 	state:field(7,1,3,1,"txt","Textbox")
 	state:image(0,0,2,2,"img","default_stone.png")
 	state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
 	state:checkbox(2,1,"c","Easy code",true)
+	local area = state:textarea(1,3.5,9,4,"ta","Code:")
 	local res = "smartfs.create(\"smartfs:form\",function(state)\n"
-	res = res .. "\tstate:size(10,7)\n"
-	res = res .. "\tstate:label(2,0,\"lbl\",\"SmartFS example formspec!\")\n"
-	res = res .. "\tstate:field(7,1,3,1,\"txt\",\"Textbox\")\n"
-	res = res .. "\tstate:image(0,0,2,2,\"img\",\"default_stone.png\")\n"
-	res = res .. "\tstate:toggle(0,2,3,1,\"tg\",{\"plenty..\",\"of..\",\"custom..\",\"elements\"})\n"
-	res = res .. "\tstate:checkbox(2,1,\"c\",\"Easy code\",true)\n"
-	res = res .. "end)"
-	state:textarea(1,3.5,9,4,"ta","Code:"):setText(res)
+			res = res .. "\tstate:size(10,7)\n"
+			res = res .. "\tstate:label(2,0,\"lbl\",\"SmartFS example formspec!\")\n"
+			res = res .. "\tstate:field(7,1,3,1,\"txt\",\"Textbox\")\n"
+			res = res .. "\tstate:image(0,0,2,2,\"img\",\"default_stone.png\")\n"
+			res = res .. "\tstate:toggle(0,2,3,1,\"tg\",{\"plenty..\",\"of..\",\"custom..\",\"elements\"})\n"
+			res = res .. "\tstate:checkbox(2,1,\"c\",\"Easy code\",true)\n"
+			res = res .. "end)"
+
+	area:setText(res)
+
+	state:onInput(function(self, fields, user) -- processed on any (supported) input
+		if state.location.type == "nodemeta" then
+			usr:setText(user) -- display current user who sent the data
+		end
+	end)
 	return true
 end)
 
-l = smartfs.create("smartfs:load",function(state)
+local l = smartfs.create("smartfs:load",function(state)
 	state:load(minetest.get_modpath("smartfs").."/example.smartfs")
 	state:get("btn"):click(function(self,state)
 		print("Button clicked!")
@@ -63,4 +74,18 @@ minetest.register_chatcommand("sfs_lc", {
 	func = function(name, param)
 		smartfs.create("asdinas",function() end)
 	end
+})
+
+-- attach form "s" to the demoblock node
+minetest.register_node("smartfs:demoblock", {
+	description = "SmartFS Demo block",
+	groups = {cracky = 3},
+	tiles = {"demo.png"},
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		s:attach_to_node(pos, placer)
+	end,
+--[[	on_construct = function(pos)
+		s:attach_to_node(pos)
+	end,]]--
+	on_receive_fields = smartfs.nodemeta_on_receive_fields
 })

@@ -13,11 +13,15 @@ smartfs = {
 
 -- the smartfs() function
 function smartfs.__call(self, name)
+	return smartfs.get(name)
+end
+
+function smartfs.get(name)
 	return smartfs._fdef[name]
 end
 
 -- Register forms and elements
-function smartfs.create(name,onload)
+function smartfs.create(name, onload)
 	if smartfs._fdef[name] then
 		error("SmartFS - (Error) Form "..name.." already exists!")
 	end
@@ -28,11 +32,13 @@ function smartfs.create(name,onload)
 	smartfs._fdef[name] = {
 		_reg = onload,
 		name = name,
-		show = smartfs._show_
+		show = smartfs._show_,
+		attach_to_node = smartfs._attach_to_node_
 	}
 
 	return smartfs._fdef[name]
 end
+
 function smartfs.override_load_checks()
 	smartfs._loaded_override = true
 end
@@ -40,16 +46,19 @@ end
 minetest.after(0, function()
 	smartfs.loaded = true
 end)
+
 function smartfs.dynamic(name,player)
 	if not smartfs._dynamic_warned then
 		smartfs._dynamic_warned = true
 		print("SmartFS - (Warning) On the fly forms are being used. May cause bad things to happen")
 	end
+
 	local state = smartfs._makeState_({name=name},player,nil,false)
 	state.show = state._show_
 	smartfs.opened[player] = state
 	return state
 end
+
 function smartfs.element(name,data)
 	if smartfs._edef[name] then
 		error("SmartFS - (Error) Element type "..name.." already exists!")
@@ -99,13 +108,57 @@ function smartfs.add_to_inventory(form,icon,title)
 	end
 end
 
-function smartfs._makeState_(form,player,params,is_inv)
+function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
+	-- Object to manage players
+	local function _make_players_(form, newplayer)
+		local self = {
+			_list = {}
+		}
+
+		function self.connect(self, player)
+			if player then
+				self._list[player] = player
+			end
+		end
+
+		function self.disconnect(self, player)
+			self._list[player] = nil
+		end
+
+		function self.get_first(self)
+			return next(self._list)
+		end
+
+		self:connect(newplayer)
+		return self
+	end
+
+	-- create object to handle formspec location
+	local function _make_location_(form, newplayer, params, is_inv, nodepos)
+		local self = {}
+		if nodepos then
+			self.type = "nodemeta"
+			self.pos = nodepos
+		elseif newplayer then
+			if is_inv then
+				self.type = "inventory"
+			else
+				self.type = "player"
+			end
+			self.player = newplayer
+		end
+		return self
+	end
+
+	-- create returning state object
 	return {
 		_ele = {},
 		def = form,
-		player = player,
+		players = _make_players_(form, newplayer),
+		location = _make_location_(form, newplayer, params, is_inv, nodepos),
+		is_inv = is_inv, -- obsolete. Please use location.type="inventory" instead
+		player = newplayer, -- obsolete. Please use location.player
 		param = params or {},
-		is_inv = is_inv,
 		get = function(self,name)
 			return self._ele[name]
 		end,
@@ -126,16 +179,23 @@ function smartfs._makeState_(form,player,params,is_inv)
 			return res
 		end,
 		_show_ = function(self)
-			if self.is_inv then
+			local res = self:_getFS_(true)
+			if self.location.type == "inventory" then
 				if unified_inventory then
-					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.player), self.def.name)
+					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.location.player), self.def.name)
 				elseif inventory_plus then
-					inventory_plus.set_inventory_formspec(minetest.get_player_by_name(self.player), self:_getFS_(true))
+					inventory_plus.set_inventory_formspec(minetest.get_player_by_name(self.location.player), res)
 				end
-			else
-				local res = self:_getFS_(true)
-				minetest.show_formspec(player,form.name,res)
+			elseif self.location.type == "player" then
+				minetest.show_formspec(self.location.player, form.name, res)
+			elseif self.location.type == "nodemeta" then
+				local meta = minetest.get_meta(self.location.pos)
+				meta:set_string("formspec", res)
+				meta:set_string("smartfs_name", self.def.name)
 			end
+		end,
+		onInput = function(self, func)
+			self._onInput = func -- (fields, player)
 		end,
 		load = function(self,file)
 			local file = io.open(file, "r")
@@ -249,29 +309,33 @@ function smartfs._makeState_(form,player,params,is_inv)
 end
 
 -- Show a formspec to a user
-function smartfs._show_(form, player, params, is_inv)
-	local state = smartfs._makeState_(form, player, params, is_inv)
+function smartfs._show_(form, name, params, is_inv)
+	local state = smartfs._makeState_(form, name, params, is_inv)
 	state.show = state._show_
 	if form._reg(state)~=false then
 		if not is_inv then
-			smartfs.opened[player] = state
+			smartfs.opened[name] = state
 			state:_show_()
 		else
-			smartfs.inv[player] = state
+			smartfs.inv[name] = state
 		end
 	end
 	return state
 end
 
--- Receive fields from formspec
-local function _sfs_recieve_(state,name,fields)
-	if (fields.quit == "true") then
-		if not state.is_inv then
-			smartfs.opened[name] = nil
-		end
-		return true
+-- Attach a formspec to a node
+function smartfs._attach_to_node_(form, nodepos, placer)
+	-- No attached user, no params, no inventory integration:
+	local state = smartfs._makeState_(form, nil, nil, nil, nodepos)
+	state:setparam("node_placer", placer:get_player_name())
+	if form._reg(state) then
+		state:_show_()
 	end
+	return state
+end
 
+-- Receive fields from formspec
+local function _sfs_recieve_(state, player, fields)
 	for key,val in pairs(fields) do
 		if state._ele[key] then
 			state._ele[key].data.value = val
@@ -279,32 +343,80 @@ local function _sfs_recieve_(state,name,fields)
 	end
 	for key,val in pairs(state._ele) do
 		if val.submit then
-			if (val:submit(fields)==true) then
-				return true
-			end
+			val:submit(fields, player)
 		end
 	end
-	if state.closed ~= true then
+
+	-- call onInput hook if enabled
+	if state._onInput then
+		state:_onInput(fields, player)
+	end
+
+	if not fields.quit and not state.closed then
 		state:_show_()
 	else
-		minetest.show_formspec(name,"","size[5,1]label[0,0;Formspec closing not yet created!]")
-		if not state.is_inv then
-			smartfs.opened[name] = nil
+		-- to be closed
+		state.players:disconnect(player)
+		if state.location.type == "player" then
+			smartfs.opened[player] = nil
+		end
+		if not fields.quit and state.closed then
+			--closed by application (without fields.quit). currently not supported, see: https://github.com/minetest/minetest/pull/4675
+			minetest.show_formspec(player,"","size[5,1]label[0,0;Formspec closing not yet created!]")
 		end
 	end
 	return true
 end
 
+-- Receive input from sender to the node form
+function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, params)
+	local meta = minetest.get_meta(nodepos)
+	local nodeform = meta:get_string("smartfs_name")
+	if not nodeform then
+		print("SmartFS - (Warning) smartfs.nodemeta_on_receive_fields for node without smarfs data")
+		return false
+	end
+
+	-- get the currentsmartfs state
+	local opened_id = minetest.pos_to_string(nodepos)
+	local state
+	local form = smartfs.get(nodeform)
+	if not smartfs.opened[opened_id] or      -- If opened first time
+ 			smartfs.opened[opened_id].def.name ~= nodeform then -- Or form is changed
+		state = smartfs._makeState_(form, nil, params, nil, nodepos)
+		smartfs.opened[opened_id] = state
+		form._reg(state)
+	else
+		state = smartfs.opened[opened_id]
+	end
+
+	-- Set current sender check for multiple users on node
+	local name = sender:get_player_name()
+	state.players:connect(name)
+
+	-- take the input
+	_sfs_recieve_(state, name, fields)
+
+	-- Reset form if all players disconnected
+	if not state.players:get_first() then
+		state._ele = {}
+		if form._reg(state) then
+			state:_show_()
+		end
+		smartfs.opened[opened_id] = nil
+	end
+end
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
-	if smartfs.opened[name] and not smartfs.opened[name].is_inv then
+	if smartfs.opened[name] and smartfs.opened[name].location.type == "player" then
 		if smartfs.opened[name].def.name == formname then
 			local state = smartfs.opened[name]
 			return _sfs_recieve_(state,name,fields)
 		else
 			smartfs.opened[name] = nil
 		end
-	elseif smartfs.inv[name] and smartfs.inv[name].is_inv then
+	elseif smartfs.inv[name] and smartfs.inv[name].location.type == "inventory" then
 		local state = smartfs.inv[name]
 		_sfs_recieve_(state,name,fields)
 	end
@@ -354,13 +466,9 @@ smartfs.element("button",{
 			end
 		end
 	end,
-	submit = function(self,fields,state)
+	submit = function(self, fields, player)
 		if fields[self.name] and self._click then
-			self:_click(self.root)
-		end
-
-		if self.data.closes then
-			return true
+			self:_click(self.root, player)
 		end
 	end,
 	setPosition = function(self,x,y)
@@ -393,9 +501,6 @@ smartfs.element("button",{
 	getImage = function(self)
 		return self.data.img
 	end,
-	setClose = function(self,bool)
-		self.data.closes = bool
-	end
 })
 
 smartfs.element("toggle",{
@@ -410,14 +515,14 @@ smartfs.element("toggle",{
 			self.data.list[self.data.id]..
 			"]"
 	end,
-	submit = function(self,fields)
+	submit = function(self, fields, player)
 		if fields[self.name] then
 			self.data.id = self.data.id + 1
 			if self.data.id > #self.data.list then
 				self.data.id = 1
 			end
 			if self._tog then
-				self:_tog(self.root)
+				self:_tog(self.root, player)
 			end
 		end
 	end,
@@ -565,22 +670,26 @@ smartfs.element("image",{
 
 smartfs.element("checkbox",{
 	build = function(self)
-		if self.data.value then
-			return "checkbox["..
-				self.data.pos.x..","..self.data.pos.y..
-				";"..
-				self.name..
-				";"..
-				self.data.label..
-				";true]"
-		else
-			return "checkbox["..
-				self.data.pos.x..","..self.data.pos.y..
-				";"..
-				self.name..
-				";"..
-				self.data.label..
-				";false]"
+		if self.data.value == true then
+			self.data.value = "true"
+		elseif self.data.value ~= "true" then
+			self.data.value = "false"
+		end
+		return "checkbox["..
+			self.data.pos.x..","..self.data.pos.y..
+			";"..
+			self.name..
+			";"..
+			self.data.label..
+			";"..self.data.value.."]"
+	end,
+	submit = function(self, fields, player)
+		if fields[self.name] then
+			-- self.data.value already set by value transfer
+			-- call the toggle function if defined
+			if self._tog then
+				self:_tog(self.root, player)
+			end
 		end
 	end,
 	setPosition = function(self,x,y)
@@ -588,18 +697,6 @@ smartfs.element("checkbox",{
 	end,
 	getPosition = function(self,x,y)
 		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
-	end,
-	setText = function(self,text)
-		self.data.value = text
-	end,
-	getText = function(self)
-		return self.data.value
 	end,
 	setValue = function(self, value)
 		self.data.value = minetest.is_yes(value)
@@ -613,7 +710,7 @@ smartfs.element("checkbox",{
 })
 
 smartfs.element("list", {
-        build = function(self)
+	build = function(self)
 		if not self.data.items then
 			self.data.items = {}
 		end
@@ -632,15 +729,15 @@ smartfs.element("list", {
 
 		return listformspec
 	end,
-	submit = function(self,fields)
+	submit = function(self, fields, player)
 		if fields[self.name] then
 			local _type = string.sub(fields[self.data.name], 1, 3)
 			local index = string.sub(fields[self.data.name], 5)
 			self.data.selected = index
 			if _type == "CHG" and self._click then
-				self:_click(self.root, index)
+				self:_click(self.root, index, player)
 			elseif _type == "DCL" and self._doubleClick then
-				self:_doubleClick(self.root, index)
+				self:_doubleClick(self.root, index, player)
 			end
 		end
 	end,
@@ -768,9 +865,9 @@ smartfs.element("code",{
 
 		return self.data.code
 	end,
-	submit = function(self,fields)
+	submit = function(self, fields, player)
 		if self._sub then
-			self:_sub(fields)
+			self:_sub(self.root, fields, player)
 		end
 	end,
 	onSubmit = function(self,func)

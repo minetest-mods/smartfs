@@ -7,10 +7,12 @@
 * smartfs.add\_to\_inventory(form, icon, title) - Adds a form to an installed advanced inventory. Returns true on success.
 * smartfs.inventory_mod() - Returns the name of an installed and supported inventory mod that will be used above, or null.
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
+* smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender) - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
 
 ##Form
 * form:show( playername [, parameters] ) - shows the form to a player. See state.param.
 * form.name - the name of the form.
+* form.attach_to_node(nodepos, params, placer) - Attach a form to a node meta (in register_node's constructor (w.o. placer), on_placenode (with placer), or dynamically
 
 ##State
 
@@ -21,6 +23,7 @@
 * state:close() - closes the form (does not work yet, due to no MT api support).
 * state:load( filepath ) - Loads elements from a file.
 * state:save( filepath ) - Saves elements to a file.
+* state:onInput( function(self,fields,playername)) - specify a function to run after data and/or events received
 * state:button( x,y,w,h,name,text [, exit_on_click] ) - create a new button at x,y with name and caption (text)
  * ^ optional: exit_on_click - set to true to exit the form when the button is clicked. ( Also see button.setClose() )
 * state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
@@ -34,10 +37,16 @@
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
 
 ### Variables
-* state.player - The name of the player.
+* state.players - Object to handle players connected to the formspec
+  * state.players:connect(playername) - register player is viewing the formspec (should be used only by framework)
+  * state.players:disconnect(playername) - remove player from active viewers (should be used only by framework)
+  * state.players:get_first() - get the first player, or nil if no players connected
 * state.param - The parameters supplied by form:show.
 * state.def - The form definition.
-* state.is_inv - Boolean which is true if this form is being shown as an inventory.
+* state.location - defines the location the form is assigned - please use it read only
+  * state.location.type - defines the assignment type. Values: "player", "inventory", "nodemeta"
+  * state.location.player - the assigned player ("player" and "inventory" only)
+  * state.location.pos - the assigned node position ("nodemeta" only)
 
 ##Button
 * element:setPosition( x,y ) - change the position
@@ -48,7 +57,7 @@
 * element:getText() - get the caption of the button
 * element:setImage( filename ) - sets the background of the button
 * element:getImage() - get the background filename of the button
-* element:click( func(self,state) ) - specify a function to run when the button is clicked
+* element:click( func(self,state,playername) ) - specify a function to run when the button is clicked
 
 ##Toggle Button
 * element:setPosition( x,y ) - change the position
@@ -58,7 +67,7 @@
 * element:getText() - get the text of the toggle option
 * element:setId( filename ) - sets the selected id
 * element:getId() - get the selected id
-* element:onToggle( func(self,state) ) - specify a function to run when the value if toggled
+* element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
 ##Label
 * element:setPosition( x,y ) - change the position
@@ -91,9 +100,24 @@
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
 
+##Image
+* element:setPosition( x,y ) - change the position
+* element:getPosition() - get the current position
+* element:setSize( w,h ) - set the size
+* element:getSize() - get the size
+* element:setImage( text ) - set image
+* element:getImage() - get the image
+
+##Checkbox
+* element:setPosition( x,y ) - change the position
+* element:getPosition() - get the current position
+* element:setValue( bool ) - set the value
+* element:getValue() - get the value
+* element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
+
 ##List box
-* element:onClick( func(self,state,idx) ) - function to run when listbox item idx is clicked
-* element:onDoubleClick( func(self,state,idx) ) - function to run when listbox item idx is double clicked
+* element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked
+* element:onDoubleClick( func(self,state,idx,playername) ) - function to run when listbox item idx is double clicked
 * element:setPosition( x,y ) - set the position
 * element:getPosition() - returns {x=x, y=y}
 * element:setSize( w,h ) - set the size

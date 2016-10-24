@@ -86,3 +86,20 @@ Dynamic forms allow you to make a form without having to register it before the 
     state:show()
 
 Make sure you call state:show()
+
+
+## Formspec on nodes
+SmartFS is able to attach a formspec to a node metadata. The attached form can be opened by any player and all players see the same. If a player enter information and take updates on the form, all users see the updated form instantly. All changes are saved in node meta data and visible to all players.
+Do not write sensitive to the formspec since the nodemeta is sent to all player clients. To show something sensitive to only a single player info please use form:show method instead of nodemeta.
+Please note: there is a "reset" implemented if all players leave the node formspec, the initial state is restored.
+
+    minetest.register_node("smartfs:demoblock", {
+    	description = "SmartFS Demo block",
+    	groups = {cracky = 3},
+    	tiles = {"demo.png"},
+    	after_place_node = function(pos, placer, itemstack, pointed_thing)
+    		state:attach_nodemeta(pos, placer)
+    	end,
+    	on_receive_fields = smartfs.nodemeta_on_receive_fields
+    })
+
