@@ -61,10 +61,11 @@ function smartfs.dynamic(name,player)
 	return state
 end
 
-function smartfs.element(name,data)
+function smartfs.element(name, data)
 	assert(not smartfs._edef[name],
 			"SmartFS - (Error) Element type "..name.." already exists!")
 
+	assert(data.onCreate, "element requires onCreate method")
 	smartfs._edef[name] = data
 	return smartfs._edef[name]
 end
@@ -264,9 +265,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 
 			self._ele[data.name] = ele
 
-			if type.onCreate then
-				type.onCreate(ele)
-			end
+			type.onCreate(ele)
 
 			return self._ele[data.name]
 		end,
