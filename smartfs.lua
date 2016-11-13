@@ -85,7 +85,7 @@ function smartfs.add_to_inventory(form, icon, title)
 			get_formspec = function(player, formspec)
 				local name = player:get_player_name()
 				local opened = smartfs._show_(form, name, nil, true)
-				return {formspec = opened:_getFS_(false)}
+				return {formspec = opened:_buildFormspec_(false)}
 			end
 		})
 		return true
@@ -97,7 +97,7 @@ function smartfs.add_to_inventory(form, icon, title)
 			if formname == "" and fields[form.name] then
 				local name = player:get_player_name()
 				local opened = smartfs._show_(form, name, nil, true)
-				inventory_plus.set_inventory_formspec(player, opened:_getFS_(true))
+				inventory_plus.set_inventory_formspec(player, opened:_buildFormspec_(true))
 			end
 		end)
 		return true
@@ -166,7 +166,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 		size = function(self,w,h)
 			self._size = {w=w,h=h}
 		end,
-		_getFS_ = function(self,size)
+		_buildFormspec_ = function(self,size)
 			local res = ""
 			if self._size and size then
 				res = "size["..self._size.w..","..self._size.h.."]"
@@ -177,7 +177,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 			return res
 		end,
 		_show_ = function(self)
-			local res = self:_getFS_(true)
+			local res = self:_buildFormspec_(true)
 			if self.location.type == "inventory" then
 				if unified_inventory then
 					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.location.player), self.def.name)
