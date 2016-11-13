@@ -22,12 +22,10 @@ end
 
 -- Register forms and elements
 function smartfs.create(name, onload)
-	if smartfs._fdef[name] then
-		error("SmartFS - (Error) Form "..name.." already exists!")
-	end
-	if smartfs.loaded and not smartfs._loaded_override then
-		error("SmartFS - (Error) Forms should be declared while the game loads.")
-	end
+	assert(not smartfs._fdef[name],
+			"SmartFS - (Error) Form "..name.." already exists!")
+	assert(not smartfs.loaded or smartfs._loaded_override,
+			"SmartFS - (Error) Forms should be declared while the game loads.")
 
 	smartfs._fdef[name] = {
 		form_setup_callback = onload,
@@ -50,19 +48,19 @@ end)
 function smartfs.dynamic(name,player)
 	if not smartfs._dynamic_warned then
 		smartfs._dynamic_warned = true
-		print("SmartFS - (Warning) On the fly forms are being used. May cause bad things to happen")
+		minetest.log("warning", "SmartFS - (Warning) On the fly forms are being used. May cause bad things to happen")
 	end
 
-	local state = smartfs._makeState_({name=name},player,nil,false)
+	local state = smartfs._makeState_({name=name}, player, nil, false)
 	state.show = state._show_
 	smartfs.opened[player] = state
 	return state
 end
 
 function smartfs.element(name,data)
-	if smartfs._edef[name] then
-		error("SmartFS - (Error) Element type "..name.." already exists!")
-	end
+	assert(not smartfs._edef[name],
+			"SmartFS - (Error) Element type "..name.." already exists!")
+
 	smartfs._edef[name] = data
 	return smartfs._edef[name]
 end
@@ -77,7 +75,7 @@ function smartfs.inventory_mod()
 	end
 end
 
-function smartfs.add_to_inventory(form,icon,title)
+function smartfs.add_to_inventory(form, icon, title)
 	if unified_inventory then
 		unified_inventory.register_button(form.name, {
 			type = "image",
@@ -310,9 +308,13 @@ end
 
 -- Show a formspec to a user
 function smartfs._show_(form, name, params, is_inv)
+	assert(form)
+	assert(typeof(name) == "string", "smartfs: name needs to be a string")
+	assert(minetest.get_player_by_name(name), "player does not exist")
+
 	local state = smartfs._makeState_(form, name, params, is_inv)
 	state.show = state._show_
-	if form.form_setup_callback(state)~=false then
+	if form.form_setup_callback(state) ~= false then
 		if not is_inv then
 			smartfs.opened[name] = state
 			state:_show_()
@@ -325,6 +327,10 @@ end
 
 -- Attach a formspec to a node
 function smartfs._attach_to_node_(form, nodepos, placer)
+	assert(form)
+	assert(nodepos and nodepos.x)
+	assert(placer and placer.get_player_name)
+
 	-- No attached user, no params, no inventory integration:
 	local state = smartfs._makeState_(form, nil, nil, nil, nodepos)
 	state:setparam("node_placer", placer:get_player_name())
@@ -336,6 +342,9 @@ end
 
 -- Receive fields from formspec
 local function _sfs_recieve_(state, player, fields)
+	assert(state)
+	assert(player)
+
 	for key,val in pairs(fields) do
 		if state._ele[key] then
 			state._ele[key].data.value = val
