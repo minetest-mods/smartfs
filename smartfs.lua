@@ -600,40 +600,50 @@ smartfs.element("checkbox",{
 	end,
 	getText = function(self)
 		return self.data.value
-	end
+	end,
+	setValue = function(self, value)
+		self.data.value = minetest.is_yes(value)
+	end,
+	getValue = function(self)
+		return self.data.value
+	end,
+	onToggle = function(self,func)
+		self._tog = func
+	end,
 })
 
-smartfs.element("list",{
+smartfs.element("list", {
         build = function(self)
 		if not self.data.items then
 			self.data.items = {}
 		end
 		local listformspec = "textlist["..
-					self.data.pos.x..","..self.data.pos.y..
-					";"..
-					self.data.size.w..","..self.data.size.h..
-					";"..
-					self.data.name..
-					";"..
-					table.concat(self.data.items, ",")..
-					";"..
-					tostring(self.data.selected or "")..
-					";"..
-					tostring(self.data.transparent or "false").."]"
+				self.data.pos.x..","..self.data.pos.y..
+				";"..
+				self.data.size.w..","..self.data.size.h..
+				";"..
+				self.data.name..
+				";"..
+				table.concat(self.data.items, ",")..
+				";"..
+				tostring(self.data.selected or "")..
+				";"..
+				tostring(self.data.transparent or "false").."]"
 
-                return listformspec
-        end,
-        submit = function(self,fields)
-                if fields[self.name] then
-                    local _type = string.sub(fields[self.data.name],1,3)
-                    local index = string.sub(fields[self.data.name],5)
-                    if _type == "CHG" and self._click then
-                        self:_click(self.root, index)
-                    elseif _type == "DCL" and self._doubleClick then
-                        self:_doubleClick(self.root, index)
-                    end
-                end
-        end,
+		return listformspec
+	end,
+	submit = function(self,fields)
+		if fields[self.name] then
+			local _type = string.sub(fields[self.data.name], 1, 3)
+			local index = string.sub(fields[self.data.name], 5)
+			self.data.selected = index
+			if _type == "CHG" and self._click then
+				self:_click(self.root, index)
+			elseif _type == "DCL" and self._doubleClick then
+				self:_doubleClick(self.root, index)
+			end
+		end
+	end,
 	onClick = function(self, func)
 		self._click = func
 	end,
@@ -670,6 +680,12 @@ smartfs.element("list",{
 		end
 		table.remove(self.data.items,idx)
 	end,
+	getItem = function(self, idx)
+		if not self.data.items then
+			self.data.items = {}
+		end
+		return self.data.items[idx]
+	end,
 	popItem = function(self)
 		if not self.data.items then
 			self.data.items = {}
@@ -677,7 +693,16 @@ smartfs.element("list",{
 		local item = self.data.items[#self.data.items]
 		table.remove(self.data.items)
 		return item
-	end
+	end,
+	setSelected = function(self,idx)
+		self.data.selected = idx
+	end,
+	getSelected = function(self)
+		return self.data.selected
+	end,
+	getSelectedItem = function(self)
+		return self:getItem(self:getSelected())
+	end,
 })
 
 smartfs.element("inventory",{

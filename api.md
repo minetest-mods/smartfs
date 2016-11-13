@@ -66,6 +66,21 @@
 * element:setText( text ) - set the caption of the label
 * element:getText() - get the caption of the label
 
+##Image
+* element:setPosition( x,y ) - change the position
+* element:getPosition() - get the current position
+* element:setSize( w,h ) - set the size
+* element:getSize() - get the size
+* element:setImage( text ) - set image
+* element:getImage() - get the image
+
+##Checkbox
+* element:setPosition( x,y ) - change the position
+* element:getPosition() - get the current position
+* element:setValue( bool ) - set the value
+* element:getValue() - get the value
+* element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
+
 ##Field and Text Area
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
@@ -85,7 +100,11 @@
 * element:getSize() - gets the size {w=w, h=h}
 * element:addItem( item ) - appends and item
 * element:removeItem( idx ) - remove item
+* element:getItem( idx ) - get Item idx
 * element:popItem() - removes last item and returns
+* element:setSelected( idx ) - set item selection to idx
+* element:getSelected() - get selected item (index)
+* element:getSelectedItem() - get selected item (value)
 
 ##Inventory listing
 * element:setPosition( x,y ) - set the position
