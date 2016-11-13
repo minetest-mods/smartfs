@@ -389,7 +389,6 @@ end
 function smartfs._attach_to_node_(form, nodepos, placer)
 	assert(form)
 	assert(nodepos and nodepos.x)
-	assert(placer and placer.get_player_name)
 
 	-- No attached user, no params, no inventory integration:
 	local state = smartfs._makeState_(form, nil, nil, nil, nodepos)
