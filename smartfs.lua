@@ -813,7 +813,7 @@ smartfs.element("checkbox", {
 smartfs.element("list", {
 	onCreate = function(self)
 		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "list needs valid pos")
-		assert(self.data.size and self.data.size.x and self.data.size.y, "list needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "list needs valid size")
 		assert(self.name, "list needs name")
 		self.data.value = minetest.is_yes(self.data.value)
 		self.data.label = self.data.label or ""
@@ -917,7 +917,7 @@ smartfs.element("list", {
 smartfs.element("inventory", {
 	onCreate = function(self)
 		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "list needs valid pos")
-		assert(self.data.size and self.data.size.x and self.data.size.y, "list needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "list needs valid size")
 		assert(self.name, "list needs name")
 	end,
 	build = function(self)
