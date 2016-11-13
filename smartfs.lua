@@ -11,6 +11,10 @@ smartfs = {
 	inv = {}
 }
 
+local function boolToStr(v)
+	return v and "true" or "false"
+end
+
 -- the smartfs() function
 function smartfs.__call(self, name)
 	return smartfs.get(name)
@@ -239,53 +243,12 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 			if not key then return end
 			return self.param[key] or default
 		end,
-		button = function(self,x,y,w,h,name,text,exitf)
-			if exitf == nil then exitf = false end
-			return self:element("button",{pos={x=x,y=y},size={w=w,h=h},name=name,value=text,closes=exitf})
-		end,
-		label = function(self,x,y,name,text)
-			return self:element("label",{pos={x=x,y=y},name=name,value=text})
-		end,
-		toggle = function(self,x,y,w,h,name,list)
-			return self:element("toggle",{pos={x=x,y=y},size={w=w,h=h},name=name,id=1,list=list})
-		end,
-		field = function(self,x,y,w,h,name,label)
-			return self:element("field",{pos={x=x,y=y},size={w=w,h=h},name=name,value="",label=label})
-		end,
-		pwdfield = function(self,x,y,w,h,name,label)
-			local res = self:element("field",{pos={x=x,y=y},size={w=w,h=h},name=name,value="",label=label})
-			res:isPassword(true)
-			return res
-		end,
-		textarea = function(self,x,y,w,h,name,label)
-			local res = self:element("field",{pos={x=x,y=y},size={w=w,h=h},name=name,value="",label=label})
-			res:isMultiline(true)
-			return res
-		end,
-		image = function(self,x,y,w,h,name,img)
-			return self:element("image",{pos={x=x,y=y},size={w=w,h=h},name=name,value=img})
-		end,
-		checkbox = function(self,x,y,name,label,selected)
-			return self:element("checkbox",{pos={x=x,y=y},name=name,value=selected,label=label})
-		end,
-		listbox = function(self,x,y,w,h,name,selected,transparent)
-			return self:element("list", { pos={x=x,y=y}, size={w=w,h=h}, name=name, selected=selected, transparent=transparent })
-		end,
-		inventory = function(self,x,y,w,h,name)
-			return self:element("inventory", { pos={x=x,y=y}, size={w=w,h=h}, name=name })
-		end,
 		element = function(self,typen,data)
 			local type = smartfs._edef[typen]
+			assert(type, "Element type "..typen.." does not exist!")
+			assert(not self._ele[data.name], "Element "..data.name.." already exists")
 
-			if not type then
-				error("Element type "..typen.." does not exist!")
-			end
-
-			if self._ele[data.name] then
-				error("Element "..data.name.." already exists")
-			end
 			data.type = typen
-
 			local ele = {
 				name = data.name,
 				root = self,
@@ -295,14 +258,111 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				end
 			}
 
-			for key,val in pairs(type) do
+			for key, val in pairs(type) do
 				ele[key] = val
 			end
 
 			self._ele[data.name] = ele
 
+			if type.onCreate then
+				type.onCreate(ele)
+			end
+
 			return self._ele[data.name]
-		end
+		end,
+
+
+		--
+		-- ELEMENT CONSTRUCTORS
+		--
+		button = function(self, x, y, w, h, name, text, exitf)
+			return self:element("button", {
+				pos    = {x=x,y=y},
+				size   = {w=w,h=h},
+				name   = name,
+				value  = text,
+				closes = exitf or false
+			})
+		end,
+		label = function(self, x, y, name, text)
+			return self:element("label", {
+				pos   = {x=x,y=y},
+				name  = name,
+				value = text
+			})
+		end,
+		toggle = function(self, x, y, w, h, name, list)
+			return self:element("toggle", {
+				pos  = {x=x, y=y},
+				size = {w=w, h=h},
+				name = name,
+				id   = 1,
+				list = list
+			})
+		end,
+		field = function(self, x, y, w, h, name, label)
+			return self:element("field", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				value = "",
+				label = label
+			})
+		end,
+		pwdfield = function(self, x, y, w, h, name, label)
+			local res = self:element("field", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				value = "",
+				label = label
+			})
+			res:isPassword(true)
+			return res
+		end,
+		textarea = function(self, x, y, w, h, name, label)
+			local res = self:element("field", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				value = "",
+				label = label
+			})
+			res:isMultiline(true)
+			return res
+		end,
+		image = function(self, x, y, w, h, name, img)
+			return self:element("image", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				value = img
+			})
+		end,
+		checkbox = function(self, x, y, name, label, selected)
+			return self:element("checkbox", {
+				pos   = {x=x, y=y},
+				name  = name,
+				value = selected,
+				label = label
+			})
+		end,
+		listbox = function(self, x, y, w, h, name, selected, transparent)
+			return self:element("list", {
+				pos         = {x=x, y=y},
+				size        = {w=w, h=h},
+				name        = name,
+				selected    = selected,
+				transparent = transparent
+			})
+		end,
+		inventory = function(self, x, y, w, h, name)
+			return self:element("inventory", {
+				pos  = {x=x, y=y},
+				size = {w=w, h=h},
+				name = name
+			})
+		end,
 	}
 end
 
@@ -437,7 +497,13 @@ end)
 -------------------------  ELEMENTS  ----------------------------
 -----------------------------------------------------------------
 
-smartfs.element("button",{
+smartfs.element("button", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "button needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "button needs valid size")
+		assert(self.name, "button needs name")
+		assert(self.data.value, "button needs label")
+	end,
 	build = function(self)
 		if self.data.img then
 			return "image_button["..
@@ -512,7 +578,13 @@ smartfs.element("button",{
 	end,
 })
 
-smartfs.element("toggle",{
+smartfs.element("toggle", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "toggle needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "toggle needs valid size")
+		assert(self.name, "toggle needs name")
+		assert(self.data.list, "toggle needs data")
+	end,
 	build = function(self)
 		return "button["..
 			self.data.pos.x..","..self.data.pos.y..
@@ -561,7 +633,11 @@ smartfs.element("toggle",{
 	end
 })
 
-smartfs.element("label",{
+smartfs.element("label", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "label needs valid pos")
+		assert(self.data.value, "label needs text")
+	end,
 	build = function(self)
 		return "label["..
 			self.data.pos.x..","..self.data.pos.y..
@@ -583,7 +659,14 @@ smartfs.element("label",{
 	end
 })
 
-smartfs.element("field",{
+smartfs.element("field", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "field needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "field needs valid size")
+		assert(self.name, "field needs name")
+		self.data.value = self.data.value or ""
+		self.data.label = self.data.label or ""
+	end,
 	build = function(self)
 		if self.data.ml then
 			return "textarea["..
@@ -647,7 +730,12 @@ smartfs.element("field",{
 	end
 })
 
-smartfs.element("image",{
+smartfs.element("image", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "image needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "image needs valid size")
+		self.data.value = self.data.value or ""
+	end,
 	build = function(self)
 		return "image["..
 			self.data.pos.x..","..self.data.pos.y..
@@ -677,11 +765,17 @@ smartfs.element("image",{
 	end
 })
 
-smartfs.element("checkbox",{
+smartfs.element("checkbox", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "checkbox needs valid pos")
+		assert(self.name, "checkbox needs name")
+		self.data.value = minetest.is_yes(self.data.value)
+		self.data.label = self.data.label or ""
+	end,
 	build = function(self)
-		if self.data.value == true then
+		if self.data.value then
 			self.data.value = "true"
-		elseif self.data.value ~= "true" then
+		else
 			self.data.value = "false"
 		end
 		return "checkbox["..
@@ -690,7 +784,7 @@ smartfs.element("checkbox",{
 			self.name..
 			";"..
 			minetest.formspec_escape(self.data.label)..
-			";"..self.data.value.."]"
+			";" .. boolToStr(self.data.value) .."]"
 	end,
 	submit = function(self, fields, player)
 		if fields[self.name] then
@@ -719,6 +813,14 @@ smartfs.element("checkbox",{
 })
 
 smartfs.element("list", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "list needs valid pos")
+		assert(self.data.size and self.data.size.x and self.data.size.y, "list needs valid pos")
+		assert(self.name, "list needs name")
+		self.data.value = minetest.is_yes(self.data.value)
+		self.data.label = self.data.label or ""
+		self.data.items = self.data.items or {}
+	end,
 	build = function(self)
 		if not self.data.items then
 			self.data.items = {}
@@ -814,7 +916,12 @@ smartfs.element("list", {
 	end,
 })
 
-smartfs.element("inventory",{
+smartfs.element("inventory", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "list needs valid pos")
+		assert(self.data.size and self.data.size.x and self.data.size.y, "list needs valid pos")
+		assert(self.name, "list needs name")
+	end,
 	build = function(self)
 		return "list["..
 			(self.data.location or "current_player") ..
@@ -869,7 +976,10 @@ smartfs.element("inventory",{
 	end
 })
 
-smartfs.element("code",{
+smartfs.element("code", {
+	onCreate = function(self)
+		self.data.code = self.data.code or ""
+	end,
 	build = function(self)
 		if self._build then
 			self:_build()
