@@ -126,6 +126,7 @@
 * element:removeItem( idx ) - remove item
 * element:getItem( idx ) - get Item idx
 * element:popItem() - removes last item and returns
+* element:clearItems() - empty the list
 * element:setSelected( idx ) - set item selection to idx
 * element:getSelected() - get selected item (index)
 * element:getSelectedItem() - get selected item (value)

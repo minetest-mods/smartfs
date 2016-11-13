@@ -791,6 +791,9 @@ smartfs.element("list", {
 		table.remove(self.data.items)
 		return item
 	end,
+	clearItems = function(self)
+		self.data.items = {}
+	end,
 	setSelected = function(self,idx)
 		self.data.selected = idx
 	end,
