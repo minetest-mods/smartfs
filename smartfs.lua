@@ -732,7 +732,7 @@ smartfs.element("list", {
 	submit = function(self, fields, player)
 		if fields[self.name] then
 			local _type = string.sub(fields[self.data.name], 1, 3)
-			local index = string.sub(fields[self.data.name], 5)
+			local index = tonumber(string.sub(fields[self.data.name], 5))
 			self.data.selected = index
 			if _type == "CHG" and self._click then
 				self:_click(self.root, index, player)
