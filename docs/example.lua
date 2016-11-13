@@ -1,5 +1,5 @@
 
-local s = smartfs.create("smartfs:form",function(state)
+local s = smartfs.create("smartfs:form", function(state)
 	state:size(10,7)
 	state:label(2,0,"lbl","SmartFS example formspec!")
 	local usr = state:label(7,0,"user","")
@@ -31,8 +31,8 @@ end)]]
 	return true
 end)
 
-local l = smartfs.create("smartfs:load",function(state)
-	state:load(minetest.get_modpath("smartfs").."/example.smartfs")
+local l = smartfs.create("smartfs:load", function(state)
+	state:load(minetest.get_modpath("smartfs").."/docs/example.smartfs")
 	state:get("btn"):click(function(self,state)
 		print("Button clicked!")
 	end)
@@ -61,7 +61,7 @@ minetest.register_chatcommand("sfs_d", {
 	description = "SmartFS test formspec 3: dynamic",
 	func = function(name, param)
 		local state = smartfs.dynamic("smartfs:dyn_form", name)
-		state:load(minetest.get_modpath("smartfs").."/example.smartfs")
+		state:load(minetest.get_modpath("smartfs").."/docs/example.smartfs")
 		state:get("btn"):click(function(self,state)
 			print("Button clicked!")
 		end)
@@ -73,11 +73,10 @@ minetest.register_chatcommand("sfs_lc", {
 	params = "",
 	description = "SmartFS test formspec 4: smartfs.create error catching",
 	func = function(name, param)
-		smartfs.create("asdinas",function() end)
+		smartfs.create("asdinas", function() end)
 	end
 })
 
--- attach form "s" to the demoblock node
 minetest.register_node("smartfs:demoblock", {
 	description = "SmartFS Demo block",
 	groups = {cracky = 3},
@@ -85,8 +84,5 @@ minetest.register_node("smartfs:demoblock", {
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		s:attach_to_node(pos, placer)
 	end,
---[[	on_construct = function(pos)
-		s:attach_to_node(pos)
-	end,]]--
 	on_receive_fields = smartfs.nodemeta_on_receive_fields
 })
