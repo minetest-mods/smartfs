@@ -30,7 +30,7 @@ function smartfs.create(name, onload)
 	end
 
 	smartfs._fdef[name] = {
-		_reg = onload,
+		form_setup_callback = onload,
 		name = name,
 		show = smartfs._show_,
 		attach_to_node = smartfs._attach_to_node_
@@ -312,7 +312,7 @@ end
 function smartfs._show_(form, name, params, is_inv)
 	local state = smartfs._makeState_(form, name, params, is_inv)
 	state.show = state._show_
-	if form._reg(state)~=false then
+	if form.form_setup_callback(state)~=false then
 		if not is_inv then
 			smartfs.opened[name] = state
 			state:_show_()
@@ -328,7 +328,7 @@ function smartfs._attach_to_node_(form, nodepos, placer)
 	-- No attached user, no params, no inventory integration:
 	local state = smartfs._makeState_(form, nil, nil, nil, nodepos)
 	state:setparam("node_placer", placer:get_player_name())
-	if form._reg(state) then
+	if form.form_setup_callback(state) then
 		state:_show_()
 	end
 	return state
@@ -385,7 +385,7 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
  			smartfs.opened[opened_id].def.name ~= nodeform then -- Or form is changed
 		state = smartfs._makeState_(form, nil, params, nil, nodepos)
 		smartfs.opened[opened_id] = state
-		form._reg(state)
+		form.form_setup_callback(state)
 	else
 		state = smartfs.opened[opened_id]
 	end
@@ -400,7 +400,7 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	-- Reset form if all players disconnected
 	if not state.players:get_first() then
 		state._ele = {}
-		if form._reg(state) then
+		if form.form_setup_callback(state) then
 			state:_show_()
 		end
 		smartfs.opened[opened_id] = nil
