@@ -368,7 +368,7 @@ end
 -- Show a formspec to a user
 function smartfs._show_(form, name, params, is_inv)
 	assert(form)
-	assert(typeof(name) == "string", "smartfs: name needs to be a string")
+	assert(type(name) == "string", "smartfs: name needs to be a string")
 	assert(minetest.get_player_by_name(name), "player does not exist")
 
 	local state = smartfs._makeState_(form, name, params, is_inv)
