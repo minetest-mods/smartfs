@@ -440,7 +440,7 @@ smartfs.element("button",{
 				";"..
 				self.name..
 				";"..
-				self.data.value..
+				minetest.formspec_escape(self.data.value)..
 				"]"
 		else
 			if self.data.closes then
@@ -451,7 +451,7 @@ smartfs.element("button",{
 					";"..
 					self.name..
 					";"..
-					self.data.value..
+					minetest.formspec_escape(self.data.value)..
 					"]"
 			else
 				return "button["..
@@ -461,7 +461,7 @@ smartfs.element("button",{
 					";"..
 					self.name..
 					";"..
-					self.data.value..
+					minetest.formspec_escape(self.data.value)..
 					"]"
 			end
 		end
@@ -512,7 +512,7 @@ smartfs.element("toggle",{
 			";"..
 			self.name..
 			";"..
-			self.data.list[self.data.id]..
+			minetest.formspec_escape(self.data.list[self.data.id])..
 			"]"
 	end,
 	submit = function(self, fields, player)
@@ -557,7 +557,7 @@ smartfs.element("label",{
 		return "label["..
 			self.data.pos.x..","..self.data.pos.y..
 			";"..
-			self.data.value..
+			minetest.formspec_escape(self.data.value)..
 			"]"
 	end,
 	setPosition = function(self,x,y)
@@ -584,9 +584,9 @@ smartfs.element("field",{
 				";"..
 				self.name..
 				";"..
-				self.data.label..
+				minetest.formspec_escape(self.data.label)..
 				";"..
-				self.data.value..
+				minetest.formspec_escape(self.data.value)..
 				"]"
 		elseif self.data.pwd then
 			return "pwdfield["..
@@ -596,7 +596,7 @@ smartfs.element("field",{
 				";"..
 				self.name..
 				";"..
-				self.data.label..
+				minetest.formspec_escape(self.data.label)..
 				"]"
 		else
 			return "field["..
@@ -606,9 +606,9 @@ smartfs.element("field",{
 				";"..
 				self.name..
 				";"..
-				self.data.label..
+				minetest.formspec_escape(self.data.label)..
 				";"..
-				self.data.value..
+				minetest.formspec_escape(self.data.value)..
 				"]"
 		end
 	end,
@@ -680,7 +680,7 @@ smartfs.element("checkbox",{
 			";"..
 			self.name..
 			";"..
-			self.data.label..
+			minetest.formspec_escape(self.data.label)..
 			";"..self.data.value.."]"
 	end,
 	submit = function(self, fields, player)

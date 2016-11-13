@@ -11,14 +11,15 @@ local s = smartfs.create("smartfs:form",function(state)
 	state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
 	state:checkbox(2,1,"c","Easy code",true)
 	local area = state:textarea(1,3.5,9,4,"ta","Code:")
-	local res = "smartfs.create(\"smartfs:form\",function(state)\n"
-			res = res .. "\tstate:size(10,7)\n"
-			res = res .. "\tstate:label(2,0,\"lbl\",\"SmartFS example formspec!\")\n"
-			res = res .. "\tstate:field(7,1,3,1,\"txt\",\"Textbox\")\n"
-			res = res .. "\tstate:image(0,0,2,2,\"img\",\"default_stone.png\")\n"
-			res = res .. "\tstate:toggle(0,2,3,1,\"tg\",{\"plenty..\",\"of..\",\"custom..\",\"elements\"})\n"
-			res = res .. "\tstate:checkbox(2,1,\"c\",\"Easy code\",true)\n"
-			res = res .. "end)"
+	local res = [[
+smartfs.create("smartfs:form",function(state)
+	state:size(10,7)
+	state:label(2,0,"lbl","SmartFS example formspec!")
+	state:field(7,1,3,1,"txt","Textbox")
+	state:image(0,0,2,2,"img","default_stone.png")
+	state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
+	state:checkbox(2,1,"c","Easy code",true)
+end)]]
 
 	area:setText(res)
 
