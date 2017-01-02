@@ -5,7 +5,7 @@
 * smartfs.element( name, data ) - creates a new element type.
 * smartfs.dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
 * smartfs.add\_to\_inventory(form, icon, title) - Adds a form to an installed advanced inventory. Returns true on success.
-* smartfs.inventory_mod() - Returns the name of an installed and supported inventory mod that will be used above, or null.
+* smartfs.inventory_mod() - Returns the name of an installed and supported inventory mod that will be used above, or nil.
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 * smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender) - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
 
