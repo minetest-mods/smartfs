@@ -4,7 +4,7 @@
 --    by Rubenwardy
 ---------------------------
 
-smartfs = {
+local smartfs = {
 	_fdef = {},
 	_edef = {},
 	opened = {},
@@ -1043,3 +1043,5 @@ smartfs.element("code", {
 		return self.data.code
 	end
 })
+
+return smartfs

@@ -8,8 +8,6 @@ This mod provides a 2nd generation way of creating forms - this means that the m
 * New elements: Includes a toggle button
 
 License: WTFPL
-To install this library, place the smartfs.lua file in your mod and then include it (dofile).
-There is an init.lua file in the download that shows you how to do this.
 
 #Using Smart Formspec
 Smartfs provides 2nd generation Minetest forms to replace clunky formspec strings. Each smartfs form is a container filled with GUI elements. A number of default elements are included with smartfs, but modders can also define their own custom elements. This document describes the basic usage of the smartfs API.
@@ -18,10 +16,13 @@ Smartfs provides 2nd generation Minetest forms to replace clunky formspec string
 Smartfs can be used as a library or a mod.
 
 To use smartfs as a library, copy the smartfs.lua file to your mod folder and add
-    dofile(minetest.get\_modpath(minetest.get\_current\_modname()).."/smartfs.lua")
-to the top of any files that use it.
+    local smartfs = dofile(minetest.get\_modpath(minetest.get\_current\_modname()).."/smartfs.lua")
+
+to the top of your init.lua. If your mod is splitted to multiple files you can transport the library reference trough your mod namespace
+    yourmod.smartfs = dofile(minetest.get\_modpath(minetest.get\_current\_modname()).."/smartfs.lua")
 
 To use smartfs as a mod, add it to your game's mods folder or to the user mods folder and enable it.
+You need to set up a dependency for your mod to use it. The library is available in the global "smartfs" table in this case.
 
 ## Creating and showing forms
 A form is a rectangular area of the screen upon which all elements are placed. Use the smartfs.create() function to create a new form. This function takes two arguments and returns a form object.
