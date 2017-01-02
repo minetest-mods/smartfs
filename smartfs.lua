@@ -154,7 +154,7 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	state.players:connect(name)
 
 	-- take the input
-	_sfs_recieve_(state, name, fields)
+	state:_sfs_on_receive_fields_(name, fields)
 
 	-- Reset form if all players disconnected
 	if not state.players:get_first() then
@@ -174,13 +174,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if smartfs.opened[name] and smartfs.opened[name].location.type == "player" then
 		if smartfs.opened[name].def.name == formname then
 			local state = smartfs.opened[name]
-			return _sfs_recieve_(state,name,fields)
+			return state:_sfs_on_receive_fields_(name, fields)
 		else
 			smartfs.opened[name] = nil
 		end
 	elseif smartfs.inv[name] and smartfs.inv[name].location.type == "inventory" then
 		local state = smartfs.inv[name]
-		_sfs_recieve_(state,name,fields)
+		state:_sfs_on_receive_fields_(name, fields)
 	end
 	return false
 end)
@@ -227,45 +227,6 @@ function smartfs._attach_to_node_(form, nodepos, placer)
 		state:_show_()
 	end
 	return state
-end
-
-------------------------------------------------------
--- Form Interface (internal) - Receive fields from formspec
-------------------------------------------------------
-local function _sfs_recieve_(state, player, fields)
-	assert(state)
-	assert(player)
-
-	for key,val in pairs(fields) do
-		if state._ele[key] then
-			state._ele[key].data.value = val
-		end
-	end
-	for key,val in pairs(state._ele) do
-		if val.submit then
-			val:submit(fields, player)
-		end
-	end
-
-	-- call onInput hook if enabled
-	if state._onInput then
-		state:_onInput(fields, player)
-	end
-
-	if not fields.quit and not state.closed then
-		state:_show_()
-	else
-		-- to be closed
-		state.players:disconnect(player)
-		if state.location.type == "player" then
-			smartfs.opened[player] = nil
-		end
-		if not fields.quit and state.closed then
-			--closed by application (without fields.quit). currently not supported, see: https://github.com/minetest/minetest/pull/4675
-			minetest.show_formspec(player,"","size[5,1]label[0,0;Formspec closing not yet created!]")
-		end
-	end
-	return true
 end
 
 ------------------------------------------------------
@@ -363,6 +324,42 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				meta:set_string("formspec", res)
 				meta:set_string("smartfs_name", self.def.name)
 			end
+		end,
+		-- Receive fields and actions from formspec
+		_sfs_on_receive_fields_ = function(self, player, fields)
+			assert(self)
+			assert(player)
+
+			for key,val in pairs(fields) do
+				if self._ele[key] then
+					self._ele[key].data.value = val
+				end
+			end
+			for key,val in pairs(self._ele) do
+				if val.submit then
+					val:submit(fields, player)
+				end
+			end
+
+			-- call onInput hook if enabled
+			if self._onInput then
+				self:_onInput(fields, player)
+			end
+
+			if not fields.quit and not self.closed then
+				self:_show_()
+			else
+				-- to be closed
+				self.players:disconnect(player)
+				if self.location.type == "player" then
+					smartfs.opened[player] = nil
+				end
+				if not fields.quit and self.closed then
+					--closed by application (without fields.quit). currently not supported, see: https://github.com/minetest/minetest/pull/4675
+					minetest.show_formspec(player,"","size[5,1]label[0,0;Formspec closing not yet created!]")
+				end
+			end
+			return true
 		end,
 		onInput = function(self, func)
 			self._onInput = func -- (fields, player)
