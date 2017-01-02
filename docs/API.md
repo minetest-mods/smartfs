@@ -16,7 +16,7 @@
 
 ##State
 
-### Methods
+###Methods
 * state:size( width,height ) - sets the forms width and height.
 * state:get( name ) - gets an element by name.
 * state:show() - reshows the form to the player.
@@ -36,7 +36,7 @@
 * state:checkbox( x,y,name,label,selected ) - create a check box.
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
 
-### Variables
+###Variables
 * state.players - Object to handle players connected to the formspec
   * state.players:connect(playername) - register player is viewing the formspec (should be used only by framework)
   * state.players:disconnect(playername) - remove player from active viewers (should be used only by framework)
@@ -48,80 +48,58 @@
   * state.location.player - the assigned player ("player" and "inventory" only)
   * state.location.pos - the assigned node position ("nodemeta" only)
 
-##Button
+##State Elements
+
+###All elements / abstract
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
 * element:setSize( w,h ) - set the size
 * element:getSize() - get the size
+
+###Button
 * element:setText( text ) - set the caption of the button
 * element:getText() - get the caption of the button
 * element:setImage( filename ) - sets the background of the button
 * element:getImage() - get the background filename of the button
 * element:click( func(self,state,playername) ) - specify a function to run when the button is clicked
 
-##Toggle Button
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
+###Toggle Button
 * element:getText() - get the text of the toggle option
 * element:setId( filename ) - sets the selected id
 * element:getId() - get the selected id
 * element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
-##Label
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
+###Label
 * element:setText( text ) - set the caption of the label
 * element:getText() - get the caption of the label
 
-##Image
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
+###Image
 * element:setImage( text ) - set image
 * element:getImage() - get the image
 
-##Checkbox
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
+###Checkbox
 * element:setValue( bool ) - set the value
 * element:getValue() - get the value
 * element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
-##Field and Text Area
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
+###Field and Text Area
 * element:setText( text ) - set the caption of the button
 * element:getText() - get the caption of the field
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
 
-##Image
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
-* element:setSize( w,h ) - set the size
-* element:getSize() - get the size
+###Image
 * element:setImage( text ) - set image
 * element:getImage() - get the image
 
-##Checkbox
-* element:setPosition( x,y ) - change the position
-* element:getPosition() - get the current position
+###Checkbox
 * element:setValue( bool ) - set the value
 * element:getValue() - get the value
 * element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
-##List box
+###List box
 * element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked
 * element:onDoubleClick( func(self,state,idx,playername) ) - function to run when listbox item idx is double clicked
-* element:setPosition( x,y ) - set the position
-* element:getPosition() - returns {x=x, y=y}
-* element:setSize( w,h ) - set the size
-* element:getSize() - gets the size {w=w, h=h}
 * element:addItem( item ) - appends and item
 * element:removeItem( idx ) - remove item
 * element:getItem( idx ) - get Item idx
@@ -131,11 +109,7 @@
 * element:getSelected() - get selected item (index)
 * element:getSelectedItem() - get selected item (value)
 
-##Inventory listing
-* element:setPosition( x,y ) - set the position
-* element:getPosition() - returns {x=x, y=y}
-* element:setSize( w,h ) - set the size
-* element:getSize() - gets the size {w=w, h=h}
+###Inventory listing
 * element:setLocation( location ) - set a custom inventory location or nil for the default (current_player)
   * element:usePosition( position ) - use a node metadata attached inventory of the node at the given positon
   * element:useDetached( name ) - use a detached inventory with the given name
@@ -144,7 +118,7 @@
 * element:setIndex( index ) - set the inventory starting index
 * element:getIndex() - returns the inventory starting index
 
-##Custom Code
+###Custom Code
 * element:onSubmit( func(self) ) - on form submit
 * element:onBuild( func(self) ) - run every time form is shown. You can set code from here
 * element:setCode( code ) - set the formspec code

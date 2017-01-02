@@ -423,7 +423,19 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				data = data,
 				remove = function(self)
 					self.root._ele[self.name] = nil
-				end
+				end,
+				setPosition = function(self,x,y)
+					self.data.pos = {x=x,y=y}
+				end,
+				getPosition = function(self)
+					return self.data.pos
+				end,
+				setSize = function(self,w,h)
+					self.data.size = {w=w,h=h}
+				end,
+				getSize = function(self)
+					return self.data.size
+				end,
 			}
 
 			for key, val in pairs(type) do
@@ -584,18 +596,6 @@ smartfs.element("button", {
 			self:_click(self.root, player)
 		end
 	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
-	end,
 	onClick = function(self,func)
 		self._click = func
 	end,
@@ -648,18 +648,6 @@ smartfs.element("toggle", {
 	onToggle = function(self,func)
 		self._tog = func
 	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
-	end,
 	setId = function(self,id)
 		self.data.id = id
 	end,
@@ -682,12 +670,6 @@ smartfs.element("label", {
 			";"..
 			minetest.formspec_escape(self.data.value)..
 			"]"
-	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
 	end,
 	setText = function(self,text)
 		self.data.value = text
@@ -742,18 +724,6 @@ smartfs.element("field", {
 				"]"
 		end
 	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
-	end,
 	setText = function(self,text)
 		self.data.value = text
 	end,
@@ -782,18 +752,6 @@ smartfs.element("image", {
 			";"..
 			self.data.value..
 			"]"
-	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
 	end,
 	setImage = function(self,text)
 		self.data.value = text
@@ -832,12 +790,6 @@ smartfs.element("checkbox", {
 				self:_tog(self.root, player)
 			end
 		end
-	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
 	end,
 	setValue = function(self, value)
 		self.data.value = minetest.is_yes(value)
@@ -902,18 +854,6 @@ smartfs.element("list", {
 	doubleclick = function(self, func)
 		self._doubleClick = func
 	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
-	end,
 	addItem = function(self, item)
 		if not self.data.items then
 			self.data.items = {}
@@ -972,18 +912,6 @@ smartfs.element("inventory", {
 			";"..
 			(self.data.index or "") ..
 			"]"
-	end,
-	setPosition = function(self,x,y)
-		self.data.pos = {x=x,y=y}
-	end,
-	getPosition = function(self,x,y)
-		return self.data.pos
-	end,
-	setSize = function(self,w,h)
-		self.data.size = {w=w,h=h}
-	end,
-	getSize = function(self,x,y)
-		return self.data.size
 	end,
 	-- available inventory locations
 	-- "current_player": Player to whom the menu is shown
