@@ -12,7 +12,7 @@
 ##Form
 * form:show( playername [, parameters] ) - shows the form to a player. See state.param.
 * form.name - the name of the form.
-* form.attach_to_node(nodepos, params, placer) - Attach a form to a node meta (in register_node's constructor (w.o. placer), on_placenode (with placer), or dynamically
+* form.attach_to_node(nodepos, params) - Attach a form to a node meta (usable in register_node's constructor, on_placenode, or dynamically)
 
 ##State
 

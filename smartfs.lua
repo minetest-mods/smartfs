@@ -216,7 +216,7 @@ end
 ------------------------------------------------------
 -- Form Interface [linked to form:attach_to_node()] - Attach a formspec to a node meta
 ------------------------------------------------------
-function smartfs._attach_to_node_(form, nodepos, placer, params)
+function smartfs._attach_to_node_(form, nodepos, params)
 	assert(form)
 	assert(nodepos and nodepos.x)
 
