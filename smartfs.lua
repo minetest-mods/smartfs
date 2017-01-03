@@ -216,13 +216,12 @@ end
 ------------------------------------------------------
 -- Form Interface [linked to form:attach_to_node()] - Attach a formspec to a node meta
 ------------------------------------------------------
-function smartfs._attach_to_node_(form, nodepos, placer)
+function smartfs._attach_to_node_(form, nodepos, placer, params)
 	assert(form)
 	assert(nodepos and nodepos.x)
 
 	-- No attached user, no params, no inventory integration:
-	local state = smartfs._makeState_(form, nil, nil, nil, nodepos)
-	state:setparam("node_placer", placer:get_player_name())
+	local state = smartfs._makeState_(form, nil, params, nil, nodepos)
 	if form.form_setup_callback(state) then
 		state:_show_()
 	end
