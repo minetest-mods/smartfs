@@ -222,7 +222,7 @@ function smartfs._attach_to_node_(form, nodepos, params)
 
 	-- No attached user, no params, no inventory integration:
 	local state = smartfs._makeState_(form, nil, params, nil, nodepos)
-	if form.form_setup_callback(state) then
+	if form.form_setup_callback(state) ~= false then
 		state:_show_()
 	end
 	return state
