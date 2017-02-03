@@ -88,15 +88,6 @@
 * element:setImage( filename ) - sets the background of the field
 * element:getImage() - get the background filename of the field
 
-###Image
-* element:setImage( text ) - set image
-* element:getImage() - get the image
-
-###Checkbox
-* element:setValue( bool ) - set the value
-* element:getValue() - get the value
-* element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
-
 ###List box
 * element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked
 * element:onDoubleClick( func(self,state,idx,playername) ) - function to run when listbox item idx is double clicked
