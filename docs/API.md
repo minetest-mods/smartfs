@@ -31,7 +31,8 @@
 * state:field( x,y,w,h,name,label ) - create a new field at x,y with label
   * state:pwdfield( x,y,w,h,name,label ) - create a password field
   * state:textarea( x,y,w,h,name,label ) - create a new textarea
-* state:image( x,y,w,h,name,imagepath ) - create an image box.
+* state:image( x,y,w,h,name,image ) - create an image box
+  * state:background( x,y,w,h,name,image ) - create an image box in background
 * state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
@@ -55,6 +56,8 @@
 * element:getPosition() - get the current position
 * element:setSize( w,h ) - set the size
 * element:getSize() - get the size
+* element:setBackground(image) - Set the background of element. Please note a size needs to be defined on element
+* element:getBackground() - get the current background
 
 ###Button
 * element:setText( text ) - set the caption of the button
@@ -73,8 +76,8 @@
 * element:setText( text ) - set the caption of the label
 * element:getText() - get the caption of the label
 
-###Image
-* element:setImage( text ) - set image
+###Image and Background
+* element:setImage( image ) - set image
 * element:getImage() - get the image
 
 ###Checkbox

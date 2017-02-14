@@ -304,7 +304,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				res = "size["..self._size.w..","..self._size.h.."]"
 			end
 			for key,val in pairs(self._ele) do
-				res = res .. val:build()
+				res = res .. val:getBackgroundString() .. val:build()
 			end
 			return res
 		end,
@@ -432,6 +432,27 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				getSize = function(self)
 					return self.data.size
 				end,
+				setBackground = function(self, image)
+					self.data.background = image
+				end,
+				getBackground = function(self)
+					return self.data.background
+				end,
+				getBackgroundString = function(self)
+					if self.data.background then
+						local size = self:getSize()
+						if size then
+							return "background["..
+									self.data.pos.x..","..self.data.pos.y..";"..
+									size.w..","..size.h..";"..
+									self.data.background.."]"
+						else
+							return ""
+						end
+					else
+						return ""
+					end
+				end,
 			}
 
 			for key, val in pairs(type) do
@@ -509,7 +530,17 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				pos   = {x=x, y=y},
 				size  = {w=w, h=h},
 				name  = name,
-				value = img
+				value = img,
+				imgtype = "image"
+			})
+		end,
+		background = function(self, x, y, w, h, name, img)
+			return self:element("image", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				background = img,
+				imgtype  = "background"
 			})
 		end,
 		checkbox = function(self, x, y, name, label, selected)
@@ -741,19 +772,31 @@ smartfs.element("image", {
 		self.data.value = self.data.value or ""
 	end,
 	build = function(self)
-		return "image["..
-			self.data.pos.x..","..self.data.pos.y..
-			";"..
-			self.data.size.w..","..self.data.size.h..
-			";"..
-			self.data.value..
-			"]"
+		if self.data.imgtype == "background" then
+			return "" -- handled in _buildFormspec_ trough getBackgroundString()
+		else
+			return "image["..
+				self.data.pos.x..","..self.data.pos.y..
+				";"..
+				self.data.size.w..","..self.data.size.h..
+				";"..
+				self.data.value..
+				"]"
+		end
 	end,
 	setImage = function(self,text)
-		self.data.value = text
+		if self.data.imgtype == "background" then
+			self.data.background = text
+		else
+			self.data.value = text
+		end
 	end,
 	getImage = function(self)
-		return self.data.value
+		if self.data.imgtype == "background" then
+			return self.data.background
+		else
+			return self.data.value
+		end
 	end
 })
 

@@ -6,7 +6,9 @@ local s = smartfs.create("smartfs:form", function(state)
 	if state.location.type ~= "nodemeta" then -- display location user name if it is user or inventory formspec
 		usr:setText(state.location.player)
 	end
-	state:field(7,1,3,1,"txt","Textbox")
+	usr:setSize(3,0.5)
+	usr:setBackground("halo.png")
+	state:field(7.25,1.25,3,1,"txt","Textbox")
 	state:image(0,0,2,2,"img","default_stone.png")
 	state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
 	state:checkbox(2,1,"c","Easy code",true)
