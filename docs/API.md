@@ -60,6 +60,8 @@
 * element:getSize() - get the size
 * element:setBackground(image) - Set the background of element. Please note a size needs to be defined on element
 * element:getBackground() - get the current background
+* element:setVisible(bool) - set the visibility status (set hidden=>false, unhide=>true or nil)
+* element:getVisible() - get the visibility status
 
 ###Button
 * element:setText( text ) - set the caption of the button

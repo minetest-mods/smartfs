@@ -304,7 +304,9 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				res = "size["..self._size.w..","..self._size.h.."]"
 			end
 			for key,val in pairs(self._ele) do
-				res = res .. val:getBackgroundString() .. val:build()
+				if val:getVisible() then
+					res = res .. val:getBackgroundString() .. val:build()
+				end
 			end
 			return res
 		end,
@@ -432,6 +434,16 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				getSize = function(self)
 					return self.data.size
 				end,
+				setVisible = function(self, visible)
+					if visible == nil then
+						self.data.visible = true
+					else
+						self.data.visible = visible
+					end
+				end,
+				getVisible = function(self)
+					return self.data.visible
+				end,
 				setBackground = function(self, image)
 					self.data.background = image
 				end,
@@ -454,6 +466,8 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 					end
 				end,
 			}
+
+			ele.data.visible = true --visible by default
 
 			for key, val in pairs(type) do
 				ele[key] = val

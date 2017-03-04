@@ -10,7 +10,15 @@ local s = smartfs.create("smartfs:form", function(state)
 	usr:setBackground("halo.png")
 	state:field(7.25,1.25,3,1,"txt","Textbox")
 	state:image(0,0,2,2,"img","default_stone.png")
-	state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
+	local toggle = state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
+	toggle:onToggle(function(self, state, player)
+		if state:get("ta"):getVisible() == false then
+			state:get("ta"):setVisible()
+		else
+			state:get("ta"):setVisible(false)
+		end
+	end)
+
 	state:checkbox(2,1,"c","Easy code",true)
 	local area = state:textarea(1,3.5,9,4,"ta","Code:")
 	local res = [[
