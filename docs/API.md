@@ -25,7 +25,9 @@
 * state:save( filepath ) - Saves elements to a file.
 * state:onInput( function(self,fields,playername)) - specify a function to run after data and/or events received
 * state:button( x,y,w,h,name,text [, exit_on_click] ) - create a new button at x,y with name and caption (text)
- * ^ optional: exit_on_click - set to true to exit the form when the button is clicked. ( Also see button.setClose() )
+  * ^ optional: exit_on_click - set to true to exit the form when the button is clicked. ( Also see button.setClose() )
+  * state:image_button( x,y,w,h,name,text, image [, exit_on_click] ) create a new button with image.
+  * state:item_image_button( x,y,w,h,name,text, item [, exit_on_click] ) create a new button with item as image.
 * state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
 * state:label( x,y,name,text ) - create a new label at x,y with name and caption (text)
 * state:field( x,y,w,h,name,label ) - create a new field at x,y with label
@@ -64,7 +66,13 @@
 * element:getText() - get the caption of the button
 * element:setImage( filename ) - sets the background of the button
 * element:getImage() - get the background filename of the button
-* element:click( func(self,state,playername) ) - specify a function to run when the button is clicked
+* element:setItem(item) - Set a registred itemname and convert the button to item_image_button
+* element:getItem() - get the current itemname
+* element:setTooltip(text) - set the tooltip for the button
+* element:getTooltip() - get the current tooltip
+* element:setClose(bool) - set option (bool) if the button should close the form
+* element:getClose() - get the current close setting
+* element:click( func(self,state,playername) ) - specify a function to run when the button is clicked (equal to onClick)
 
 ###Toggle Button
 * element:getText() - get the text of the toggle option

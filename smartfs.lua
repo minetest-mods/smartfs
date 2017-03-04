@@ -478,6 +478,26 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				closes = exitf or false
 			})
 		end,
+		image_button = function(self, x, y, w, h, name, text, image, exitf)
+			return self:element("button", {
+				pos    = {x=x,y=y},
+				size   = {w=w,h=h},
+				name   = name,
+				value  = text,
+				image  = image,
+				closes = exitf or false
+			})
+		end,
+		item_image_button = function(self, x, y, w, h, name, text, item, exitf)
+			return self:element("button", {
+				pos    = {x=x,y=y},
+				size   = {w=w,h=h},
+				name   = name,
+				value  = text,
+				item   = item,
+				closes = exitf or false
+			})
+		end,
 		label = function(self, x, y, name, text)
 			return self:element("label", {
 				pos   = {x=x,y=y},
@@ -582,41 +602,41 @@ smartfs.element("button", {
 		assert(self.data.value, "button needs label")
 	end,
 	build = function(self)
-		if self.data.img then
-			return "image_button["..
-				self.data.pos.x..","..self.data.pos.y..
-				";"..
-				self.data.size.w..","..self.data.size.h..
-				";"..
-				self.data.img..
-				";"..
-				self.name..
-				";"..
-				minetest.formspec_escape(self.data.value)..
-				"]"
+		local specstring
+		if self.data.image then
+			if self.data.closes then
+				specstring = "image_button_exit["
+			else
+				specstring = "image_button["
+			end
+		elseif self.data.item then
+			if self.data.closes then
+				specstring = "item_image_button_exit["
+			else
+				specstring = "item_image_button["
+			end
 		else
 			if self.data.closes then
-				return "button_exit["..
-					self.data.pos.x..","..self.data.pos.y..
-					";"..
-					self.data.size.w..","..self.data.size.h..
-					";"..
-					self.name..
-					";"..
-					minetest.formspec_escape(self.data.value)..
-					"]"
+				specstring = "button_exit["
 			else
-				return "button["..
-					self.data.pos.x..","..self.data.pos.y..
-					";"..
-					self.data.size.w..","..self.data.size.h..
-					";"..
-					self.name..
-					";"..
-					minetest.formspec_escape(self.data.value)..
-					"]"
+				specstring = "button["
 			end
 		end
+
+		specstring = specstring ..
+				self.data.pos.x..","..self.data.pos.y..";"..
+				self.data.size.w..","..self.data.size.h..";"
+		if self.data.image then
+			specstring = specstring..self.data.image..";"
+		elseif self.data.item then
+			specstring = specstring..self.data.item..";"
+		end
+		specstring = specstring..self.name..";"..
+				minetest.formspec_escape(self.data.value).."]"
+		if self.data.tooltip then
+			specstring = specstring.."tooltip["..self.name..";"..self.data.tooltip.."]"
+		end
+		return specstring
 	end,
 	submit = function(self, fields, player)
 		if fields[self.name] and self._click then
@@ -636,11 +656,31 @@ smartfs.element("button", {
 		return self.data.value
 	end,
 	setImage = function(self,image)
-		self.data.img = image
+		self.data.image = image
+		self.data.item = nil
 	end,
 	getImage = function(self)
-		return self.data.img
+		return self.data.image
 	end,
+	setItem = function(self,item)
+		self.data.item = item
+		self.data.image = nil
+	end,
+	getItem = function(self)
+		return self.data.item
+	end,
+	setTooltip = function(self,text)
+		self.data.tooltip = text
+	end,
+	getTooltip = function(self)
+		return self.data.tooltip
+	end,
+	setClose = function(self,bool)
+		self.data.closes = bool
+	end,
+	getClose = function(self)
+		return self.data.closes or false
+	end
 })
 
 smartfs.element("toggle", {
