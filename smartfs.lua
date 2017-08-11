@@ -264,7 +264,16 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 	-- create object to handle formspec location
 	local function _make_location_(form, newplayer, params, is_inv, nodepos)
 		local self = {}
-		if nodepos then
+		if form.root and form.root.location then --the parent "form" is a state
+			self.type = "container"
+			self.containerElement = form
+			self.parentState = form.root
+			if self.parentState.location.type == "container" then
+				self.rootState = self.parentState.location.rootState
+			else
+				self.rootState = self.parentState
+			end
+		elseif nodepos then
 			self.type = "nodemeta"
 			self.pos = nodepos
 		elseif newplayer then
@@ -295,8 +304,23 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 		close = function(self)
 			self.closed = true
 		end,
+		getSize = function(self)
+			return self._size
+		end,
 		size = function(self,w,h)
 			self._size = {w=w,h=h}
+		end,
+		setSize = function(self,w,h)
+			self._size = {w=w,h=h}
+		end,
+		getNamespace = function(self)
+			local ref = self
+			local namespace = ""
+			while ref.location.type == "container" do
+				namespace = ref.location.containerElement.name.."#"..namespace
+				ref = ref.location.parentState -- step near to the root
+			end
+			return namespace
 		end,
 		_buildFormspec_ = function(self,size)
 			local res = ""
@@ -326,31 +350,64 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				meta:set_string("smartfs_name", self.def.name)
 			end
 		end,
-		-- Receive fields and actions from formspec
-		_sfs_on_receive_fields_ = function(self, player, fields)
-			assert(self)
-			assert(player)
-
-			for key,val in pairs(fields) do
-				if self._ele[key] then
-					self._ele[key].data.value = val
-				end
+		_get_element_recursive_ = function(self, field)
+			local topfield
+			for z in field:gmatch("[^#]+") do
+				topfield = z
+				break
 			end
-			for key,val in pairs(self._ele) do
-				if val.submit then
-					val:submit(fields, player)
+			local element = self._ele[topfield]
+			if element and field == topfield then
+				return element
+			elseif element then
+				if element._getSubElement_ then
+					local rel_field = string.sub(field, string.len(topfield)+2)
+					return element:_getSubElement_(rel_field)
+				else
+					return element
 				end
+			else
+				return nil
 			end
-
-			-- call onInput hook if enabled
+		end,
+		-- process onInput hook for the state
+		_sfs_process_oninput_ = function(self, fields, player)
 			if self._onInput then
 				self:_onInput(fields, player)
+			end
+			-- recursive all onInput hooks on visible containers
+			for elename, eledef in pairs(self._ele) do
+				if eledef.getContainerState and eledef:getVisible() then
+					eledef:getContainerState():_sfs_process_oninput_(fields, player)
+				end
+			end
+		end,
+		-- Receive fields and actions from formspec
+		_sfs_on_receive_fields_ = function(self, player, fields)
+
+			local fields_todo = {}
+			for field, value in pairs(fields) do
+				local element = self:_get_element_recursive_(field)
+				if element then
+					fields_todo[field] = { element = element, value = value }
+				end
+			end
+
+			for field, todo in pairs(fields_todo) do
+				todo.element:setValue(todo.value)
+			end
+
+			self:_sfs_process_oninput_(fields, player)
+
+			for field, todo in pairs(fields_todo) do
+				if todo.element.submit then
+					todo.element:submit(todo.value, player)
+				end
 			end
 
 			if not fields.quit and not self.closed then
 				self:_show_()
 			else
-				-- to be closed
 				self.players:disconnect(player)
 				if self.location.type == "player" then
 					smartfs.opened[player] = nil
@@ -444,6 +501,9 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				getVisible = function(self)
 					return self.data.visible
 				end,
+				getAbsName = function(self)
+					return self.root:getNamespace()..self.name
+				end,
 				setBackground = function(self, image)
 					self.data.background = image
 				end,
@@ -464,6 +524,9 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 					else
 						return ""
 					end
+				end,
+				setValue = function(self, value)
+					self.data.value = value
 				end,
 			}
 
@@ -601,6 +664,20 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				name = name
 			})
 		end,
+		container = function(self, x, y, name, relative)
+			return self:element("container", {
+				pos  = {x=x, y=y},
+				name = name,
+				relative = false
+			})
+		end,
+		view = function(self, x, y, name, relative)
+			return self:element("container", {
+				pos  = {x=x, y=y},
+				name = name,
+				relative = true
+			})
+		end,
 	}
 end
 
@@ -645,15 +722,15 @@ smartfs.element("button", {
 		elseif self.data.item then
 			specstring = specstring..self.data.item..";"
 		end
-		specstring = specstring..self.name..";"..
+		specstring = specstring..self:getAbsName()..";"..
 				minetest.formspec_escape(self.data.value).."]"
 		if self.data.tooltip then
-			specstring = specstring.."tooltip["..self.name..";"..self.data.tooltip.."]"
+			specstring = specstring.."tooltip["..self:getAbsName()..";"..self.data.tooltip.."]"
 		end
 		return specstring
 	end,
-	submit = function(self, fields, player)
-		if fields[self.name] and self._click then
+	submit = function(self, field, player)
+		if self._click then
 			self:_click(self.root, player)
 		end
 	end,
@@ -664,7 +741,7 @@ smartfs.element("button", {
 		self._click = func
 	end,
 	setText = function(self,text)
-		self.data.value = text
+		self:setValue(text)
 	end,
 	getText = function(self)
 		return self.data.value
@@ -710,20 +787,18 @@ smartfs.element("toggle", {
 			";"..
 			self.data.size.w..","..self.data.size.h..
 			";"..
-			self.name..
+			self:getAbsName()..
 			";"..
 			minetest.formspec_escape(self.data.list[self.data.id])..
 			"]"
 	end,
-	submit = function(self, fields, player)
-		if fields[self.name] then
-			self.data.id = self.data.id + 1
-			if self.data.id > #self.data.list then
-				self.data.id = 1
-			end
-			if self._tog then
-				self:_tog(self.root, player)
-			end
+	submit = function(self, field, player)
+		self.data.id = self.data.id + 1
+		if self.data.id > #self.data.list then
+			self.data.id = 1
+		end
+		if self._tog then
+			self:_tog(self.root, player)
 		end
 	end,
 	onToggle = function(self,func)
@@ -753,7 +828,7 @@ smartfs.element("label", {
 			"]"
 	end,
 	setText = function(self,text)
-		self.data.value = text
+		self:setValue(text)
 	end,
 	getText = function(self)
 		return self.data.value
@@ -775,7 +850,7 @@ smartfs.element("field", {
 				";"..
 				self.data.size.w..","..self.data.size.h..
 				";"..
-				self.name..
+				self:getAbsName()..
 				";"..
 				minetest.formspec_escape(self.data.label)..
 				";"..
@@ -787,7 +862,7 @@ smartfs.element("field", {
 				";"..
 				self.data.size.w..","..self.data.size.h..
 				";"..
-				self.name..
+				self:getAbsName()..
 				";"..
 				minetest.formspec_escape(self.data.label)..
 				"]"
@@ -797,7 +872,7 @@ smartfs.element("field", {
 				";"..
 				self.data.size.w..","..self.data.size.h..
 				";"..
-				self.name..
+				self:getAbsName()..
 				";"..
 				minetest.formspec_escape(self.data.label)..
 				";"..
@@ -806,7 +881,7 @@ smartfs.element("field", {
 		end
 	end,
 	setText = function(self,text)
-		self.data.value = text
+		self:setValue(text)
 	end,
 	getText = function(self)
 		return self.data.value
@@ -842,7 +917,7 @@ smartfs.element("image", {
 		if self.data.imgtype == "background" then
 			self.data.background = text
 		else
-			self.data.value = text
+			self:setValue(text)
 		end
 	end,
 	getImage = function(self)
@@ -862,26 +937,18 @@ smartfs.element("checkbox", {
 		self.data.label = self.data.label or ""
 	end,
 	build = function(self)
-		if self.data.value then
-			self.data.value = "true"
-		else
-			self.data.value = "false"
-		end
 		return "checkbox["..
 			self.data.pos.x..","..self.data.pos.y..
 			";"..
-			self.name..
+			self:getAbsName()..
 			";"..
 			minetest.formspec_escape(self.data.label)..
 			";" .. boolToStr(self.data.value) .."]"
 	end,
-	submit = function(self, fields, player)
-		if fields[self.name] then
-			-- self.data.value already set by value transfer
-			-- call the toggle function if defined
-			if self._tog then
-				self:_tog(self.root, player)
-			end
+	submit = function(self, field, player)
+		-- call the toggle function if defined
+		if self._tog then
+			self:_tog(self.root, player)
 		end
 	end,
 	setValue = function(self, value)
@@ -913,7 +980,7 @@ smartfs.element("list", {
 				";"..
 				self.data.size.w..","..self.data.size.h..
 				";"..
-				self.data.name..
+				self:getAbsName()..
 				";"..
 				table.concat(self.data.items, ",")..
 				";"..
@@ -923,16 +990,14 @@ smartfs.element("list", {
 
 		return listformspec
 	end,
-	submit = function(self, fields, player)
-		if fields[self.name] then
-			local _type = string.sub(fields[self.data.name], 1, 3)
-			local index = tonumber(string.sub(fields[self.data.name], 5))
-			self.data.selected = index
-			if _type == "CHG" and self._click then
-				self:_click(self.root, index, player)
-			elseif _type == "DCL" and self._doubleClick then
-				self:_doubleClick(self.root, index, player)
-			end
+	submit = function(self, field, player)
+		local _type = string.sub(field,1,3)
+		local index = tonumber(string.sub(field,5))
+		self.data.selected = index
+		if _type == "CHG" and self._click then
+			self:_click(self.root, index, player)
+		elseif _type == "DCL" and self._doubleClick then
+			self:_doubleClick(self.root, index, player)
 		end
 	end,
 	onClick = function(self, func)
@@ -997,7 +1062,7 @@ smartfs.element("inventory", {
 		return "list["..
 			(self.data.location or "current_player") ..
 			";"..
-			self.name..
+			self.name..    --no namespacing
 			";"..
 			self.data.pos.x..","..self.data.pos.y..
 			";"..
@@ -1046,9 +1111,9 @@ smartfs.element("code", {
 
 		return self.data.code
 	end,
-	submit = function(self, fields, player)
+	submit = function(self, field, player)
 		if self._sub then
-			self:_sub(self.root, fields, player)
+			self:_sub(self.root, field, player)
 		end
 	end,
 	onSubmit = function(self,func)
@@ -1063,6 +1128,39 @@ smartfs.element("code", {
 	getCode = function(self)
 		return self.data.code
 	end
+})
+
+smartfs.element("container", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "container needs valid pos")
+		assert(self.name, "container needs name")
+		self._state = smartfs._makeState_(self, nil, self.root.param)
+	end,
+
+	-- redefinitions. The size is not handled by data.size but by container-state:size
+	setSize = function(self,w,h)
+		self:getContainerState():setSize(w,h)
+	end,
+	getSize = function(self)
+		return self:getContainerState():getSize()
+	end,
+
+	-- element interface methods
+	build = function(self)
+		if self.data.relative ~= true then
+			return "container["..self.data.pos.x..","..self.data.pos.y.."]"..
+					self:getContainerState():_buildFormspec_(false)..
+					"container_end[]"
+		else
+			return self:getContainerState():_buildFormspec_(false)
+		end
+	end,
+	getContainerState = function(self)
+		return self._state
+	end,
+	_getSubElement_ = function(self, field)
+		return self:getContainerState():_get_element_recursive_(field)
+	end,
 })
 
 return smartfs

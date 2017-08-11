@@ -37,6 +37,8 @@
   * state:background( x,y,w,h,name,image ) - create an image box in background
 * state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
+* state:container(x,y,name) - Add a container with elements shift relative to x,y
+  * state:view(x,y,name) - Add a virtual container (view). element coordinates are ablsolute to the parent view
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
 
 ###Variables
@@ -62,6 +64,7 @@
 * element:getBackground() - get the current background
 * element:setVisible(bool) - set the visibility status (set hidden=>false, unhide=>true or nil)
 * element:getVisible() - get the visibility status
+* element:setValue(string) - set value for the element, called internally from on_receive_fields
 
 ###Button
 * element:setText( text ) - set the caption of the button
@@ -127,3 +130,6 @@
 * element:onBuild( func(self) ) - run every time form is shown. You can set code from here
 * element:setCode( code ) - set the formspec code
 * element:getCode( code ) - get the formspec code
+
+###Container/View
+* element:getContainerState() - returns the container's sub-state to work with or add container elements
