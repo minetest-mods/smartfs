@@ -30,6 +30,7 @@
   * state:item_image_button( x,y,w,h,name,text, item [, exit_on_click] ) create a new button with item as image.
 * state:toggle( x,y,w,h,name,list ) - create a new toggle button at x,y with name and possible list of values
 * state:label( x,y,name,text ) - create a new label at x,y with name and caption (text)
+  * state:vertlabel( x,y,name,text ) - create a new vertical label at x,y with name and caption (text)
 * state:field( x,y,w,h,name,label ) - create a new field at x,y with label
   * state:pwdfield( x,y,w,h,name,label ) - create a password field
   * state:textarea( x,y,w,h,name,label ) - create a new textarea

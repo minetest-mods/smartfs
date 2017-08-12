@@ -20,6 +20,7 @@ local s = smartfs.create("smartfs:form", function(state)
 	end)
 
 	state:checkbox(2,1,"c","Easy code",true)
+	state:vertlabel(0,3.5,"vlbl","Example!")
 	local area = state:textarea(1,3.5,9,4,"ta","Code:")
 	local res = [[
 smartfs.create("smartfs:form",function(state)
