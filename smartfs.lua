@@ -649,6 +649,15 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				imgtype  = "background"
 			})
 		end,
+		item_image = function(self, x, y, w, h, name, img)
+			return self:element("image", {
+				pos   = {x=x, y=y},
+				size  = {w=w, h=h},
+				name  = name,
+				value = img,
+				imgtype  = "item"
+			})
+		end,
 		checkbox = function(self, x, y, name, label, selected)
 			return self:element("checkbox", {
 				pos   = {x=x, y=y},
@@ -918,6 +927,14 @@ smartfs.element("image", {
 	build = function(self)
 		if self.data.imgtype == "background" then
 			return "" -- handled in _buildFormspec_ trough getBackgroundString()
+		elseif self.data.imgtype == "item" then
+			return "item_image["..
+				self.data.pos.x..","..self.data.pos.y..
+				";"..
+				self.data.size.w..","..self.data.size.h..
+				";"..
+				self.data.value..
+				"]"
 		else
 			return "image["..
 				self.data.pos.x..","..self.data.pos.y..

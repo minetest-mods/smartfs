@@ -36,6 +36,7 @@
   * state:textarea( x,y,w,h,name,label ) - create a new textarea
 * state:image( x,y,w,h,name,image ) - create an image box
   * state:background( x,y,w,h,name,image ) - create an image box in background
+  * state:item_image( x,y,w,h,name,itemname ) - create an item image box
 * state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
 * state:container(x,y,name) - Add a container with elements shift relative to x,y
