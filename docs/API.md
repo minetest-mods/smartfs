@@ -39,6 +39,7 @@
   * state:item_image( x,y,w,h,name,itemname ) - create an item image box
 * state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
+* state:listbox( x,y,w,h,name,selected, transparent ) - create a list box
 * state:dropdown( x,y,w,h,name,selected ) - create a drop down list
 * state:container(x,y,name) - Add a container with elements shift relative to x,y
   * state:view(x,y,name) - Add a virtual container (view). element coordinates are ablsolute to the parent view
