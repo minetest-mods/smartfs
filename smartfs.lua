@@ -787,7 +787,7 @@ smartfs.element("button", {
 		return self.data.item
 	end,
 	setTooltip = function(self,text)
-		self.data.tooltip = text
+		self.data.tooltip = minetest.formspec_escape(text)
 	end,
 	getTooltip = function(self)
 		return self.data.tooltip
