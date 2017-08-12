@@ -675,6 +675,14 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 				transparent = transparent
 			})
 		end,
+		dropdown = function(self, x, y, w, h, name, selected)
+			return self:element("dropdown", {
+				pos         = {x=x, y=y},
+				size        = {w=w, h=h},
+				name        = name,
+				selected    = selected
+			})
+		end,
 		inventory = function(self, x, y, w, h, name)
 			return self:element("inventory", {
 				pos  = {x=x, y=y},
@@ -1068,6 +1076,79 @@ smartfs.element("list", {
 	end,
 	getSelectedItem = function(self)
 		return self:getItem(self:getSelected())
+	end,
+})
+
+smartfs.element("dropdown", {
+	onCreate = function(self)
+		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "dropdown needs valid pos")
+		assert(self.data.size and self.data.size.w and self.data.size.h, "dropdown needs valid size")
+		assert(self.name, "dropdown needs name")
+		self.data.items = self.data.items or {}
+		self.data.selected = self.data.selected or 1
+		self.data.value = ""
+	end,
+	build = function(self)
+		return "dropdown["..
+			self.data.pos.x..","..self.data.pos.y..
+			";"..
+			self.data.size.w..","..self.data.size.h..
+			";"..
+			self:getAbsName()..
+			";"..
+			table.concat(self.data.items, ",")..
+			";"..
+			tostring(self:getSelected())..
+			"]"
+	end,
+	submit = function(self, field, player)
+		self:getSelected()
+		if self._select then
+			self:_select(self.root, field, player)
+		end
+	end,
+	onSelect = function(self, func)
+		self._select = func
+	end,
+	addItem = function(self, item)
+		table.insert(self.data.items, item)
+		if #self.data.items == self.data.selected then
+			self.data.value = item
+		end
+		-- return the index of item. It is the last one
+		return #self.data.items
+	end,
+	removeItem = function(self,idx)
+		table.remove(self.data.items,idx)
+	end,
+	getItem = function(self, idx)
+		return self.data.items[idx]
+	end,
+	popItem = function(self)
+		local item = self.data.items[#self.data.items]
+		table.remove(self.data.items)
+		return item
+	end,
+	clearItems = function(self)
+		self.data.items = {}
+	end,
+	setSelected = function(self,idx)
+		self.data.selected = idx
+		self.data.value = self:getItem(idx) or ""
+	end,
+	getSelected = function(self)
+		self.data.selected = 1
+		if #self.data.items > 1 then
+			for i = 1, #self.data.items do
+				if self.data.items[i] == self.data.value then
+					self.data.selected = i
+				end
+			end
+		end
+		return self.data.selected
+	end,
+	getSelectedItem = function(self)
+		return self.data.value
 	end,
 })
 

@@ -39,6 +39,7 @@
   * state:item_image( x,y,w,h,name,itemname ) - create an item image box
 * state:inventory( x,y,w,h,name ) - create an inventory listing (use 'main' as name for the main player inventory)
 * state:checkbox( x,y,name,label,selected ) - create a check box.
+* state:dropdown( x,y,w,h,name,selected ) - create a drop down list
 * state:container(x,y,name) - Add a container with elements shift relative to x,y
   * state:view(x,y,name) - Add a virtual container (view). element coordinates are ablsolute to the parent view
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
@@ -114,6 +115,17 @@
 * element:getItem( idx ) - get Item idx
 * element:popItem() - removes last item and returns
 * element:clearItems() - empty the list
+* element:setSelected( idx ) - set item selection to idx
+* element:getSelected() - get selected item (index)
+* element:getSelectedItem() - get selected item (value)
+
+###Drop Down list
+* element:onSelect( func(self,state,field,playername) ) - function to run when dropdown entry selected
+* element:addItem( item ) - appends and item
+* element:removeItem( idx ) - remove item
+* element:getItem( idx ) - get Item idx
+* element:popItem() - removes last item and returns
+* element:clearItems() - empty the dropdown list
 * element:setSelected( idx ) - set item selection to idx
 * element:getSelected() - get selected item (index)
 * element:getSelectedItem() - get selected item (value)
