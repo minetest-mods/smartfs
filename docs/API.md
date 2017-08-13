@@ -107,7 +107,7 @@
 ###List box
 * element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked
 * element:onDoubleClick( func(self,state,idx,playername) ) - function to run when listbox item idx is double clicked
-* element:addItem( item ) - appends and item
+* element:addItem( item ) - appends and item - returns the index for the item
 * element:removeItem( idx ) - remove item
 * element:getItem( idx ) - get Item idx
 * element:popItem() - removes last item and returns

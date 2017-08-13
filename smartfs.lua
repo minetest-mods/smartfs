@@ -968,14 +968,13 @@ smartfs.element("list", {
 		assert(self.data.size and self.data.size.w and self.data.size.h, "list needs valid size")
 		assert(self.name, "list needs name")
 		self.data.value = minetest.is_yes(self.data.value)
-		self.data.label = self.data.label or ""
 		self.data.items = self.data.items or {}
 	end,
 	build = function(self)
 		if not self.data.items then
 			self.data.items = {}
 		end
-		local listformspec = "textlist["..
+		return "textlist["..
 				self.data.pos.x..","..self.data.pos.y..
 				";"..
 				self.data.size.w..","..self.data.size.h..
@@ -987,8 +986,6 @@ smartfs.element("list", {
 				tostring(self.data.selected or "")..
 				";"..
 				tostring(self.data.transparent or "false").."]"
-
-		return listformspec
 	end,
 	submit = function(self, field, player)
 		local _type = string.sub(field,1,3)
@@ -1013,27 +1010,17 @@ smartfs.element("list", {
 		self._doubleClick = func
 	end,
 	addItem = function(self, item)
-		if not self.data.items then
-			self.data.items = {}
-		end
-		table.insert(self.data.items, item)
+		table.insert(self.data.items, minetest.formspec_escape(item))
+		-- return the index of item. It is the last one
+		return #self.data.items
 	end,
 	removeItem = function(self,idx)
-		if not self.data.items then
-			self.data.items = {}
-		end
 		table.remove(self.data.items,idx)
 	end,
 	getItem = function(self, idx)
-		if not self.data.items then
-			self.data.items = {}
-		end
 		return self.data.items[idx]
 	end,
 	popItem = function(self)
-		if not self.data.items then
-			self.data.items = {}
-		end
 		local item = self.data.items[#self.data.items]
 		table.remove(self.data.items)
 		return item
