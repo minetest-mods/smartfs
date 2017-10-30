@@ -7,6 +7,7 @@
 local smartfs = {
 	_fdef = {},
 	_edef = {},
+	_ldef = {},
 	opened = {},
 	inv = {}
 }
@@ -64,54 +65,19 @@ function smartfs.dynamic(name,player)
 		smartfs._dynamic_warned = true
 		minetest.log("warning", "SmartFS - (Warning) On the fly forms are being used. May cause bad things to happen")
 	end
-
-	local state = smartfs._makeState_({name=name}, player, nil, false)
-	state.show = state._show_
+	local statelocation = smartfs._ldef.player._make_state_location_(player)
+	local state = smartfs._makeState_({name=name}, nil, statelocation, player)
 	smartfs.opened[player] = state
 	return state
-end
-
-------------------------------------------------------
--- Smartfs Interface - Adds a form to an installed advanced inventory. Returns true on success.
-------------------------------------------------------
-function smartfs.add_to_inventory(form, icon, title)
-	if unified_inventory then
-		unified_inventory.register_button(form.name, {
-			type = "image",
-			image = icon,
-		})
-		unified_inventory.register_page(form.name, {
-			get_formspec = function(player, formspec)
-				local name = player:get_player_name()
-				local opened = smartfs._show_(form, name, nil, true)
-				return {formspec = opened:_buildFormspec_(false)}
-			end
-		})
-		return true
-	elseif inventory_plus then
-		minetest.register_on_joinplayer(function(player)
-			inventory_plus.register_button(player, form.name, title)
-		end)
-		minetest.register_on_player_receive_fields(function(player, formname, fields)
-			if formname == "" and fields[form.name] then
-				local name = player:get_player_name()
-				local opened = smartfs._show_(form, name, nil, true)
-				inventory_plus.set_inventory_formspec(player, opened:_buildFormspec_(true))
-			end
-		end)
-		return true
-	else
-		return false
-	end
 end
 
 ------------------------------------------------------
 -- Smartfs Interface - Returns the name of an installed and supported inventory mod that will be used above, or nil
 ------------------------------------------------------
 function smartfs.inventory_mod()
-	if unified_inventory then
+	if minetest.global_exists("unified_inventory") then
 		return "unified_inventory"
-	elseif inventory_plus then
+	elseif minetest.global_exists("inventory_plus") then
 		return "inventory_plus"
 	else
 		return nil
@@ -119,11 +85,197 @@ function smartfs.inventory_mod()
 end
 
 ------------------------------------------------------
+-- Smartfs Interface - Adds a form to an installed advanced inventory. Returns true on success.
+------------------------------------------------------
+function smartfs.add_to_inventory(form, icon, title)
+	local ldef
+	local invmod = smartfs.inventory_mod()
+	if  invmod then
+		ldef = smartfs._ldef[invmod]
+	else
+		return false
+	end
+	return ldef.add_to_inventory(form, icon, title)
+end
+
+------------------------------------------------------
+-- Smartfs Interface - Set the form as players inventory
+------------------------------------------------------
+function smartfs.set_player_inventory(form)
+	smartfs._ldef.inventory.set_inventory(form)
+end
+------------------------------------------------------
 -- Smartfs Interface - Allows you to use smartfs.create after the game loads. Not recommended!
 ------------------------------------------------------
 function smartfs.override_load_checks()
 	smartfs._loaded_override = true
 end
+
+------------------------------------------------------
+-- Smartfs formspec locations
+------------------------------------------------------
+-- Unified inventory plugin
+smartfs._ldef.unified_inventory = {
+	add_to_inventory = function(form, icon, title)
+		unified_inventory.register_button(form.name, {
+			type = "image",
+			image = icon,
+		})
+		unified_inventory.register_page(form.name, {
+			get_formspec = function(player, formspec)
+				local name = player:get_player_name()
+				local statelocation = smartfs._ldef.unified_inventory._make_state_location_(name)
+				local state = smartfs._makeState_(form, nil, statelocation, name)
+				if form.form_setup_callback(state) ~= false then
+					smartfs.inv[name] = state
+					return {formspec = state:_buildFormspec_(false)}
+				else
+					return nil
+				end
+			end
+		})
+	end,
+	_make_state_location_ = function(player)
+		return {
+			type = "inventory",
+			player = player,
+			_show_ = function(state)
+				unified_inventory.set_inventory_formspec(minetest.get_player_by_name(state.location.player), state.def.name)
+			end
+		}
+	end
+}
+
+-- Inventory plus plugin
+smartfs._ldef.inventory_plus = {
+	add_to_inventory = function(form, icon, title)
+		minetest.register_on_joinplayer(function(player)
+			inventory_plus.register_button(player, form.name, title)
+		end)
+		minetest.register_on_player_receive_fields(function(player, formname, fields)
+			if formname == "" and fields[form.name] then
+				local name = player:get_player_name()
+				local statelocation = smartfs._ldef.inventory_plus._make_state_location_(name)
+				local state = smartfs._makeState_(form, nil, statelocation, name)
+				if form.form_setup_callback(state) ~= false then
+					smartfs.inv[name] = state
+					state:show()
+				end
+			end
+		end)
+	end,
+	_make_state_location_ = function(player)
+		return {
+			type = "inventory",
+			player = player,
+			_show_ = function(state)
+				inventory_plus.set_inventory_formspec(minetest.get_player_by_name(state.location.player), state:_buildFormspec_(true))
+			end
+		}
+	end
+}
+
+-- Show to player
+smartfs._ldef.player = {
+	_make_state_location_ = function(player)
+		return {
+			type = "player",
+			player = player,
+			_show_ = function(state)
+				if not state._show_queued then
+					state._show_queued = true
+					minetest.after(0, function(state)
+						if state then
+							state._show_queued = nil
+							minetest.show_formspec(state.location.player, state.def.name, state:_buildFormspec_(true))
+						end
+					end, state) -- state given as reference. Maybe additional updates are done in the meantime or the form is obsolete
+				end
+			end
+		}
+	end
+}
+
+-- Standalone inventory
+smartfs._ldef.inventory = {
+	set_inventory = function(form)
+		if sfinv and sfinv.enabled then
+			sfinv.enabled = nil
+		end
+		minetest.register_on_joinplayer(function(player)
+			local name = player:get_player_name()
+			local statelocation = smartfs._ldef.inventory._make_state_location_(name)
+			local state = smartfs._makeState_(form, nil, statelocation, name)
+			if form.form_setup_callback(state) ~= false then
+				smartfs.inv[name] = state
+				state:show()
+			end
+		end)
+		minetest.register_on_leaveplayer(function(player)
+			local name = player:get_player_name()
+			smartfs.inv[name] = nil
+		end)
+	end,
+	_make_state_location_ = function(name)
+		return {
+			type = "inventory",
+			player = name,
+			_show_ = function(state)
+				if not state._show_queued then
+					state._show_queued = true
+					minetest.after(0, function(state)
+						if state then
+							state._show_queued = nil
+							local player = minetest.get_player_by_name(state.location.player)
+							--print("smartfs formspec:", state:_buildFormspec_(true))
+							player:set_inventory_formspec(state:_buildFormspec_(true))
+						end
+					end, state)
+				end
+			end
+		}
+	end
+}
+
+-- Node metadata
+smartfs._ldef.nodemeta = {
+	_make_state_location_ = function(nodepos)
+		return {
+			type = "nodemeta",
+			pos = nodepos,
+			_show_ = function(state)
+				if not state._show_queued then
+					state._show_queued = true
+					minetest.after(0, function(state)
+						if state then
+							state._show_queued = nil
+							local meta = minetest.get_meta(state.location.pos)
+							meta:set_string("formspec", state:_buildFormspec_(true))
+							meta:set_string("smartfs_name", state.def.name)
+						end
+					end, state)
+				end
+			end,
+		}
+	end
+}
+
+-- Sub-container (internally used)
+smartfs._ldef.container = {
+	_make_state_location_ = function(element)
+		local self = {
+			type = "container",
+			containerElement = element,
+			parentState = element.root
+		}
+		if self.parentState.location.type == "container" then
+			self.rootState = self.parentState.location.rootState
+		else
+			self.rootState = self.parentState
+		end
+		return self
+	end
+}
 
 ------------------------------------------------------
 -- Minetest Interface - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
@@ -142,7 +294,8 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	local form = smartfs.get(nodeform)
 	if not smartfs.opened[opened_id] or      -- If opened first time
 			smartfs.opened[opened_id].def.name ~= nodeform then -- Or form is changed
-		state = smartfs._makeState_(form, nil, params, nil, nodepos)
+		local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
+		state = smartfs._makeState_(form, params, statelocation)
 		smartfs.opened[opened_id] = state
 		form.form_setup_callback(state)
 	else
@@ -158,9 +311,10 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 
 	-- Reset form if all players disconnected
 	if not state.players:get_first() then
-		state._ele = {}
-		if form.form_setup_callback(state) then
-			state:_show_()
+		local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
+		local resetstate = smartfs._makeState_(form, params, statelocation)
+		if form.form_setup_callback(resetstate) ~= false then
+			resetstate:show()
 		end
 		smartfs.opened[opened_id] = nil
 	end
@@ -195,20 +349,15 @@ end)
 ------------------------------------------------------
 -- Form Interface [linked to form:show()] - Shows the form to a player
 ------------------------------------------------------
-function smartfs._show_(form, name, params, is_inv)
+function smartfs._show_(form, name, params)
 	assert(form)
 	assert(type(name) == "string", "smartfs: name needs to be a string")
 	assert(minetest.get_player_by_name(name), "player does not exist")
-
-	local state = smartfs._makeState_(form, name, params, is_inv)
-	state.show = state._show_
+	local statelocation = smartfs._ldef.player._make_state_location_(name)
+	local state = smartfs._makeState_(form, params, statelocation, name)
 	if form.form_setup_callback(state) ~= false then
-		if not is_inv then
-			smartfs.opened[name] = state
-			state:_show_()
-		else
-			smartfs.inv[name] = state
-		end
+		smartfs.opened[name] = state
+		state:show()
 	end
 	return state
 end
@@ -220,10 +369,10 @@ function smartfs._attach_to_node_(form, nodepos, params)
 	assert(form)
 	assert(nodepos and nodepos.x)
 
-	-- No attached user, no params, no inventory integration:
-	local state = smartfs._makeState_(form, nil, params, nil, nodepos)
+	local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
+	local state = smartfs._makeState_(form, params, statelocation)
 	if form.form_setup_callback(state) ~= false then
-		state:_show_()
+		state:show()
 	end
 	return state
 end
@@ -231,11 +380,11 @@ end
 ------------------------------------------------------
 -- Smartfs Framework - create a form object (state)
 ------------------------------------------------------
-function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
+function smartfs._makeState_(form, params, location, newplayer)
 	------------------------------------------------------
 	-- State - -- Object to manage players
 	------------------------------------------------------
-	local function _make_players_(form, newplayer)
+	local function _make_players_(newplayer)
 		local self = {
 			_list = {}
 		}
@@ -258,34 +407,6 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 		return self
 	end
 
-	------------------------------------------------------
-	-- State - location handler
-	------------------------------------------------------
-	-- create object to handle formspec location
-	local function _make_location_(form, newplayer, params, is_inv, nodepos)
-		local self = {}
-		if form.root and form.root.location then --the parent "form" is a state
-			self.type = "container"
-			self.containerElement = form
-			self.parentState = form.root
-			if self.parentState.location.type == "container" then
-				self.rootState = self.parentState.location.rootState
-			else
-				self.rootState = self.parentState
-			end
-		elseif nodepos then
-			self.type = "nodemeta"
-			self.pos = nodepos
-		elseif newplayer then
-			if is_inv then
-				self.type = "inventory"
-			else
-				self.type = "player"
-			end
-			self.player = newplayer
-		end
-		return self
-	end
 
 	------------------------------------------------------
 	-- State - create returning state object
@@ -293,9 +414,9 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 	return {
 		_ele = {},
 		def = form,
-		players = _make_players_(form, newplayer),
-		location = _make_location_(form, newplayer, params, is_inv, nodepos),
-		is_inv = is_inv, -- obsolete. Please use location.type="inventory" instead
+		players = _make_players_(newplayer),
+		location = location,
+		is_inv = (location.type == "inventory"), -- obsolete. Please use location.type="inventory" instead
 		player = newplayer, -- obsolete. Please use location.player
 		param = params or {},
 		get = function(self,name)
@@ -334,22 +455,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 			end
 			return res
 		end,
-		_show_ = function(self)
-			local res = self:_buildFormspec_(true)
-			if self.location.type == "inventory" then
-				if unified_inventory then
-					unified_inventory.set_inventory_formspec(minetest.get_player_by_name(self.location.player), self.def.name)
-				elseif inventory_plus then
-					inventory_plus.set_inventory_formspec(minetest.get_player_by_name(self.location.player), res)
-				end
-			elseif self.location.type == "player" then
-				minetest.show_formspec(self.location.player, form.name, res)
-			elseif self.location.type == "nodemeta" then
-				local meta = minetest.get_meta(self.location.pos)
-				meta:set_string("formspec", res)
-				meta:set_string("smartfs_name", self.def.name)
-			end
-		end,
+		show = location._show_,
 		_get_element_recursive_ = function(self, field)
 			local topfield
 			for z in field:gmatch("[^#]+") do
@@ -406,7 +512,7 @@ function smartfs._makeState_(form, newplayer, params, is_inv, nodepos)
 			end
 
 			if not fields.quit and not self.closed then
-				self:_show_()
+				self:show()
 			else
 				self.players:disconnect(player)
 				if self.location.type == "player" then
@@ -1234,7 +1340,8 @@ smartfs.element("container", {
 	onCreate = function(self)
 		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "container needs valid pos")
 		assert(self.name, "container needs name")
-		self._state = smartfs._makeState_(self, nil, self.root.param)
+		local statelocation = smartfs._ldef.container._make_state_location_(self)
+		self._state = smartfs._makeState_(nil, self.root.param, statelocation)
 	end,
 
 	-- redefinitions. The size is not handled by data.size but by container-state:size

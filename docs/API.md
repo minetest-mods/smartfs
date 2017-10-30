@@ -4,7 +4,8 @@
 * smartfs.create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
 * smartfs.element( name, data ) - creates a new element type.
 * smartfs.dynamic( formname, playername ) - creates a dynamic form. Returns state. See example.lua for example. Remember to call state:show()
-* smartfs.add\_to\_inventory(form, icon, title) - Adds a form to an installed advanced inventory. Returns true on success.
+* smartfs.add_to_inventory(form, icon, title) - Adds a form to an installed advanced inventory. Returns true on success.
+* smartfs.set_player_inventory(form) - Set the form as players main inventory for all player
 * smartfs.inventory_mod() - Returns the name of an installed and supported inventory mod that will be used above, or nil.
 * smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 * smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender) - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
@@ -12,7 +13,14 @@
 ##Form
 * form:show( playername [, parameters] ) - shows the form to a player. See state.param.
 * form.name - the name of the form.
-* form.attach_to_node(nodepos, params) - Attach a form to a node meta (usable in register_node's constructor, on_placenode, or dynamically)
+* form:attach_to_node(nodepos, params) - Attach a form to a node meta (usable in register_node's constructor, on_placenode, or dynamically)
+
+##Supported locations
+* unified_inventory or inventory_plus plugins - assigned by smartfs.add_to_inventory() - auto-detection which inventory should be used
+* player / show_formspec() - used for form:show(player)
+* (main) inventory - assigned by smartfs.set_player_inventory()
+* nodemeta - assigned by form:attach_to_node(nodepos, params)
+* container - used internally for state:container()
 
 ##State
 
