@@ -113,8 +113,11 @@
 ###Field and Text Area
 * element:setText( text ) - set the caption of the button
 * element:getText() - get the caption of the field
-* element:setImage( filename ) - sets the background of the field
-* element:getImage() - get the background filename of the field
+* element:isPassword() - returns true if the field is a password field
+* element:isMultiline() - returns true if the field is a miltiline textarea
+* element:setCloseOnEnter(bool) - Set the field_close_on_enter string, usually set to false to disable the formspec close on enter
+* element:getCloseOnEnter() - Get the field_close_on_enter value
+* element:onKeyEnter(func(self, state, playername) - process the Enter key action for this fiels
 
 ###List box
 * element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked

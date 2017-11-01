@@ -510,6 +510,13 @@ function smartfs._makeState_(form, params, location, newplayer)
 					todo.element:submit(todo.value, player)
 				end
 			end
+			-- handle key_enter
+			if fields.key_enter and fields.key_enter_field then
+				local element = self:_get_element_recursive_(fields.key_enter_field)
+				if element and element.submit_key_enter then
+					element:submit_key_enter(fields[fields.key_enter_field], player)
+				end
+			end
 
 			if not fields.quit and not self.closed then
 				self:show()
@@ -1003,7 +1010,8 @@ smartfs.element("field", {
 				self:getAbsName()..
 				";"..
 				minetest.formspec_escape(self.data.label)..
-				"]"
+				"]"..
+				self:getCloseOnEnterString()
 		else
 			return "field["..
 				self.data.pos.x..","..self.data.pos.y..
@@ -1015,7 +1023,8 @@ smartfs.element("field", {
 				minetest.formspec_escape(self.data.label)..
 				";"..
 				minetest.formspec_escape(self.data.value)..
-				"]"
+				"]"..
+				self:getCloseOnEnterString()
 		end
 	end,
 	setText = function(self,text)
@@ -1029,7 +1038,28 @@ smartfs.element("field", {
 	end,
 	isMultiline = function(self,bool)
 		self.data.ml = bool
-	end
+	end,
+	getCloseOnEnterString = function(self)
+		if self.close_on_enter == nil then
+			return ""
+		else
+			return "field_close_on_enter["..self:getAbsName()..";"..tostring(self.close_on_enter).."]"
+		end
+	end,
+	setCloseOnEnter = function(self, value)
+		self.close_on_enter = value
+	end,
+	getCloseOnEnter = function(self)
+		return self.close_on_enter
+	end,
+	submit_key_enter = function(self, field, player)
+		if self._key_enter then
+			self:_key_enter(self.root, player)
+		end
+	end,
+	onKeyEnter = function(self,func)
+		self._key_enter = func
+	end,
 })
 
 smartfs.element("image", {

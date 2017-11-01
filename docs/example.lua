@@ -8,7 +8,12 @@ local s = smartfs.create("smartfs:form", function(state)
 	end
 	usr:setSize(3,0.5)
 	usr:setBackground("halo.png")
-	state:field(7.25,1.25,3,1,"txt","Textbox")
+	local textbox = state:field(7.25,1.25,3,1,"txt","Textbox")
+	textbox:setCloseOnEnter(false)
+	textbox:onKeyEnter(function(self, state, playername)
+		print("Enter pressed in Textbox field")
+	end)
+
 	state:image(0,0,2,2,"img","default_stone.png")
 	local toggle = state:toggle(0,2,3,1,"tg",{"plenty..","of..","custom..","elements"})
 	toggle:onToggle(function(self, state, player)
