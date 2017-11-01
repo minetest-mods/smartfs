@@ -7,7 +7,7 @@
 * smartfs.add_to_inventory(form, icon, title) - Adds a form to an installed advanced inventory. Returns true on success.
 * smartfs.set_player_inventory(form) - Set the form as players main inventory for all player
 * smartfs.inventory_mod() - Returns the name of an installed and supported inventory mod that will be used above, or nil.
-* smartfs.override\_load\_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
+* smartfs.override_load_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 * smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender) - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
 
 ##Form
@@ -77,6 +77,8 @@
 * element:setVisible(bool) - set the visibility status (set hidden=>false, unhide=>true or nil)
 * element:getVisible() - get the visibility status
 * element:setValue(string) - set value for the element, called internally from on_receive_fields
+* element:setTooltip(text) - set the tooltip for the button
+* element:getTooltip() - get the current tooltip
 
 ###Button
 * element:setText( text ) - set the caption of the button
@@ -85,8 +87,6 @@
 * element:getImage() - get the background filename of the button
 * element:setItem(item) - Set a registred itemname and convert the button to item_image_button
 * element:getItem() - get the current itemname
-* element:setTooltip(text) - set the tooltip for the button
-* element:getTooltip() - get the current tooltip
 * element:setClose(bool) - set option (bool) if the button should close the form
 * element:getClose() - get the current close setting
 * element:click( func(self,state,playername) ) - specify a function to run when the button is clicked (equal to onClick)

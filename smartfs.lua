@@ -449,7 +449,7 @@ function smartfs._makeState_(form, params, location, newplayer)
 			end
 			for key,val in pairs(self._ele) do
 				if val:getVisible() then
-					res = res .. val:getBackgroundString() .. val:build()
+					res = res .. val:getBackgroundString() .. val:build() .. val:getTooltipString()
 				end
 			end
 			return res
@@ -639,6 +639,19 @@ function smartfs._makeState_(form, params, location, newplayer)
 				end,
 				setValue = function(self, value)
 					self.data.value = value
+				end,
+				setTooltip = function(self,text)
+					self.data.tooltip = minetest.formspec_escape(text)
+				end,
+				getTooltip = function(self)
+					return self.data.tooltip
+				end,
+				getTooltipString = function(self)
+					if self.data.tooltip then
+						return "tooltip["..self:getAbsName()..";"..self:getTooltip().."]"
+					else
+						return ""
+					end
 				end,
 			}
 
@@ -862,9 +875,6 @@ smartfs.element("button", {
 		end
 		specstring = specstring..self:getAbsName()..";"..
 				minetest.formspec_escape(self.data.value).."]"
-		if self.data.tooltip then
-			specstring = specstring.."tooltip["..self:getAbsName()..";"..self.data.tooltip.."]"
-		end
 		return specstring
 	end,
 	submit = function(self, field, player)
@@ -897,12 +907,6 @@ smartfs.element("button", {
 	end,
 	getItem = function(self)
 		return self.data.item
-	end,
-	setTooltip = function(self,text)
-		self.data.tooltip = minetest.formspec_escape(text)
-	end,
-	getTooltip = function(self)
-		return self.data.tooltip
 	end,
 	setClose = function(self,bool)
 		self.data.closes = bool
