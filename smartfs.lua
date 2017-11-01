@@ -391,22 +391,18 @@ function smartfs._makeState_(form, params, location, newplayer)
 		local self = {
 			_list = {}
 		}
-
 		function self.connect(self, player)
-			if player then
-				self._list[player] = player
-			end
+			self._list[player] = true
 		end
-
 		function self.disconnect(self, player)
 			self._list[player] = nil
 		end
-
 		function self.get_first(self)
 			return next(self._list)
 		end
-
-		self:connect(newplayer)
+		if newplayer then
+			self:connect(newplayer)
+		end
 		return self
 	end
 
