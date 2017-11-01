@@ -1299,7 +1299,7 @@ smartfs.element("inventory", {
 	end,
 	build = function(self)
 		return "list["..
-			(self.data.location or "current_player") ..
+			(self.data.invlocation or "current_player") ..
 			";"..
 			self.name..    --no namespacing
 			";"..
@@ -1316,20 +1316,20 @@ smartfs.element("inventory", {
 	-- "nodemeta:<X>,<Y>,<Z>": Any node metadata
 	-- "detached:<name>": A detached inventory
 	-- "context" does not apply to smartfs, since there is no node-metadata as context available
-	setLocation = function(self,location)
-		self.data.location = location
+	setLocation = function(self,invlocation)
+		self.data.invlocation = invlocation
 	end,
 	getLocation = function(self)
-		return self.data.location or "current_player"
+		return self.data.invlocation or "current_player"
 	end,
 	usePosition = function(self, pos)
-		self.data.location = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
+		self.data.invlocation = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
 	end,
 	usePlayer = function(self, name)
-		self.data.location = "player:" .. name
+		self.data.invlocation = "player:" .. name
 	end,
 	useDetached = function(self, name)
-		self.data.location = "detached:" .. name
+		self.data.invlocation = "detached:" .. name
 	end,
 	setIndex = function(self,index)
 		self.data.index = index
