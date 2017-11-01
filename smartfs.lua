@@ -303,14 +303,17 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	end
 
 	-- Set current sender check for multiple users on node
-	local name = sender:get_player_name()
-	state.players:connect(name)
+	local name
+	if sender then
+		name = sender:get_player_name()
+		state.players:connect(name)
+	end
 
 	-- take the input
 	state:_sfs_on_receive_fields_(name, fields)
 
 	-- Reset form if all players disconnected
-	if not state.players:get_first() then
+	if sender and not state.players:get_first() then
 		local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
 		local resetstate = smartfs._makeState_(form, params, statelocation)
 		if form.form_setup_callback(resetstate) ~= false then
