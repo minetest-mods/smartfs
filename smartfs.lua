@@ -187,7 +187,9 @@ smartfs._ldef.player = {
 					minetest.after(0, function(state)
 						if state then
 							state._show_queued = nil
-							minetest.show_formspec(state.location.player, state.def.name, state:_buildFormspec_(true))
+							if (not state.closed) and (not state.obsolete) then
+								minetest.show_formspec(state.location.player, state.def.name, state:_buildFormspec_(true))
+							end
 						end
 					end, state) -- state given as reference. Maybe additional updates are done in the meantime or the form is obsolete
 				end
@@ -213,6 +215,7 @@ smartfs._ldef.inventory = {
 		end)
 		minetest.register_on_leaveplayer(function(player)
 			local name = player:get_player_name()
+			smartfs.inv[name].obsolete = true
 			smartfs.inv[name] = nil
 		end)
 	end,
@@ -294,9 +297,13 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	local state
 	local form = smartfs.get(nodeform)
 	if not smartfs.opened[opened_id] or      -- If opened first time
-			smartfs.opened[opened_id].def.name ~= nodeform then -- Or form is changed
+			smartfs.opened[opened_id].def.name ~= nodeform or -- Or form is changed
+			smartfs.opened[opened_id].obsolete then
 		local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
 		state = smartfs._makeState_(form, params, statelocation)
+		if smartfs.opened[opened_id] then
+			smartfs.opened[opened_id].obsolete = true
+		end
 		smartfs.opened[opened_id] = state
 		form.form_setup_callback(state)
 	else
@@ -314,7 +321,7 @@ function smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender, p
 	state:_sfs_on_receive_fields_(name, fields)
 
 	-- Reset form if all players disconnected
-	if sender and not state.players:get_first() then
+	if sender and not state.players:get_first() and not state.obsolete then
 		local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
 		local resetstate = smartfs._makeState_(form, params, statelocation)
 		if form.form_setup_callback(resetstate) ~= false then
@@ -332,9 +339,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if smartfs.opened[name] and smartfs.opened[name].location.type == "player" then
 		if smartfs.opened[name].def.name == formname then
 			local state = smartfs.opened[name]
-			return state:_sfs_on_receive_fields_(name, fields)
-		else
-			smartfs.opened[name] = nil
+			state:_sfs_on_receive_fields_(name, fields)
+
+			-- disconnect player if form closed
+			if not state.players:get_first() then
+				smartfs.opened[name].obsolete = true
+				smartfs.opened[name] = nil
+			end
 		end
 	elseif smartfs.inv[name] and smartfs.inv[name].location.type == "inventory" then
 		local state = smartfs.inv[name]
@@ -360,6 +371,9 @@ function smartfs._show_(form, name, params)
 	local statelocation = smartfs._ldef.player._make_state_location_(name)
 	local state = smartfs._makeState_(form, params, statelocation, name)
 	if form.form_setup_callback(state) ~= false then
+		if smartfs.opened[name] then -- set maybe previous form to obsolete
+			smartfs.opened[name].obsolete = true
+		end
 		smartfs.opened[name] = state
 		state:show()
 	end
@@ -376,6 +390,10 @@ function smartfs._attach_to_node_(form, nodepos, params)
 	local statelocation = smartfs._ldef.nodemeta._make_state_location_(nodepos)
 	local state = smartfs._makeState_(form, params, statelocation)
 	if form.form_setup_callback(state) ~= false then
+		local opened_id = minetest.pos_to_string(nodepos)
+		if smartfs.opened[opened_id] then -- set maybe previous form to obsolete
+			smartfs.opened[opened_id].obsolete = true
+		end
 		state:show()
 	end
 	return state
@@ -518,14 +536,11 @@ function smartfs._makeState_(form, params, location, newplayer)
 				end
 			end
 
-			if not fields.quit and not self.closed then
+			if not fields.quit and not self.closed and not self.obsolete then
 				self:show()
 			else
 				self.players:disconnect(player)
-				if self.location.type == "player" then
-					smartfs.opened[player] = nil
-				end
-				if not fields.quit and self.closed then
+				if not fields.quit and self.closed and not self.obsolete then
 					--closed by application (without fields.quit). currently not supported, see: https://github.com/minetest/minetest/pull/4675
 					minetest.show_formspec(player,"","size[5,1]label[0,0;Formspec closing not yet created!]")
 				end
