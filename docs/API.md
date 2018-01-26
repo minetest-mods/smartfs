@@ -1,5 +1,5 @@
-#Full API
-##Smartfs
+# Full API
+## Smartfs
 * smartfs( name ) - returns the form regisered with the name 'name'
 * smartfs.create( name,function ) - creates a new form and adds elements to it by running the function. Use before Minetest loads. (like minetest.register_node)
 * smartfs.element( name, data ) - creates a new element type.
@@ -10,21 +10,21 @@
 * smartfs.override_load_checks() - Allows you to use smartfs.create after the game loads. Not recommended!
 * smartfs.nodemeta_on_receive_fields(nodepos, formname, fields, sender) - on_receive_fields callback can be used in minetest.register_node for nodemeta forms
 
-##Form
+## Form
 * form:show( playername [, parameters] ) - shows the form to a player. See state.param.
 * form.name - the name of the form.
 * form:attach_to_node(nodepos, params) - Attach a form to a node meta (usable in register_node's constructor, on_placenode, or dynamically)
 
-##Supported locations
+## Supported locations
 * unified_inventory or inventory_plus plugins - assigned by smartfs.add_to_inventory() - auto-detection which inventory should be used
 * player / show_formspec() - used for form:show(player)
 * (main) inventory - assigned by smartfs.set_player_inventory()
 * nodemeta - assigned by form:attach_to_node(nodepos, params)
 * container - used internally for state:container()
 
-##State
+## State
 
-###Methods
+### Methods
 * state:size( width,height ) - sets the forms width and height.
 * state:get( name ) - gets an element by name.
 * state:show() - reshows the form to the player.
@@ -53,7 +53,7 @@
   * state:view(x,y,name) - Add a virtual container (view). element coordinates are ablsolute to the parent view
 * state:element( element_type, data ) - Semi-private, create an element with type and data.
 
-###Variables
+### Variables
 * state.players - Object to handle players connected to the formspec
   * state.players:connect(playername) - register player is viewing the formspec (should be used only by framework)
   * state.players:disconnect(playername) - remove player from active viewers (should be used only by framework)
@@ -65,9 +65,9 @@
   * state.location.player - the assigned player ("player" and "inventory" only)
   * state.location.pos - the assigned node position ("nodemeta" only)
 
-##State Elements
+## State Elements
 
-###All elements / abstract
+### All elements / abstract
 * element:setPosition( x,y ) - change the position
 * element:getPosition() - get the current position
 * element:setSize( w,h ) - set the size
@@ -80,7 +80,7 @@
 * element:setTooltip(text) - set the tooltip for the button
 * element:getTooltip() - get the current tooltip
 
-###Button
+### Button
 * element:setText( text ) - set the caption of the button
 * element:getText() - get the caption of the button
 * element:setImage( filename ) - sets the background of the button
@@ -91,26 +91,26 @@
 * element:getClose() - get the current close setting
 * element:click( func(self,state,playername) ) - specify a function to run when the button is clicked (equal to onClick)
 
-###Toggle Button
+### Toggle Button
 * element:getText() - get the text of the toggle option
 * element:setId( filename ) - sets the selected id
 * element:getId() - get the selected id
 * element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
-###Label
+### Label
 * element:setText( text ) - set the caption of the label
 * element:getText() - get the caption of the label
 
-###Image and Background
+### Image and Background
 * element:setImage( image ) - set image
 * element:getImage() - get the image
 
-###Checkbox
+### Checkbox
 * element:setValue( bool ) - set the value
 * element:getValue() - get the value
 * element:onToggle( func(self,state,playername) ) - specify a function to run when the value if toggled
 
-###Field and Text Area
+### Field and Text Area
 * element:setText( text ) - set the caption of the button
 * element:getText() - get the caption of the field
 * element:isPassword() - returns true if the field is a password field
@@ -119,7 +119,7 @@
 * element:getCloseOnEnter() - Get the field_close_on_enter value
 * element:onKeyEnter(func(self, state, playername) - process the Enter key action for this fiels
 
-###List box
+### List box
 * element:onClick( func(self,state,idx,playername) ) - function to run when listbox item idx is clicked
 * element:onDoubleClick( func(self,state,idx,playername) ) - function to run when listbox item idx is double clicked
 * element:addItem( item ) - appends and item - returns the index for the item
@@ -131,7 +131,7 @@
 * element:getSelected() - get selected item (index)
 * element:getSelectedItem() - get selected item (value)
 
-###Drop Down list
+### Drop Down list
 * element:onSelect( func(self,state,field,playername) ) - function to run when dropdown entry selected
 * element:addItem( item ) - appends and item
 * element:removeItem( idx ) - remove item
@@ -142,7 +142,7 @@
 * element:getSelected() - get selected item (index)
 * element:getSelectedItem() - get selected item (value)
 
-###Inventory listing
+### Inventory listing
 * element:setLocation( location ) - set a custom inventory location or nil for the default (current_player)
   * element:usePosition( position ) - use a node metadata attached inventory of the node at the given positon
   * element:useDetached( name ) - use a detached inventory with the given name
@@ -151,11 +151,11 @@
 * element:setIndex( index ) - set the inventory starting index
 * element:getIndex() - returns the inventory starting index
 
-###Custom Code
+### Custom Code
 * element:onSubmit( func(self) ) - on form submit
 * element:onBuild( func(self) ) - run every time form is shown. You can set code from here
 * element:setCode( code ) - set the formspec code
 * element:getCode( code ) - get the formspec code
 
-###Container/View
+### Container/View
 * element:getContainerState() - returns the container's sub-state to work with or add container elements
