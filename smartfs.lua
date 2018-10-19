@@ -79,6 +79,8 @@ function smartfs.inventory_mod()
 		return "unified_inventory"
 	elseif minetest.global_exists("inventory_plus") then
 		return "inventory_plus"
+	elseif minetest.global_exists("sfinv") then
+		return "sfinv"
 	else
 		return nil
 	end
@@ -171,6 +173,56 @@ smartfs._ldef.inventory_plus = {
 			_show_ = function(state)
 				inventory_plus.set_inventory_formspec(minetest.get_player_by_name(state.location.player), state:_buildFormspec_(true))
 			end
+		}
+	end
+}
+
+-- Sfinv plugin
+smartfs._ldef.sfinv = {
+	add_to_inventory = function(form, icon, title)
+		sfinv.register_page(form.name, {
+			title = title,
+			get = function(self, player, context)
+				local name = player:get_player_name()
+				local state
+				if smartfs.inv[name] then
+					state = smartfs.inv[name]
+				else
+					local statelocation = smartfs._ldef.sfinv._make_state_location_(name)
+					state = smartfs._makeState_(form, nil, statelocation, name)
+					smartfs.inv[name] = state
+					if form.form_setup_callback(state) ~= false then
+						smartfs.inv[name] = state
+					else
+						return ""
+					end
+				end
+				local fs = state:_buildFormspec_(false)
+				return sfinv.make_formspec(player, context, fs, true)
+			end,
+			on_player_receive_fields = function(self, player, _, fields)
+				local name = player:get_player_name()
+				if smartfs.inv[name] then
+					smartfs.inv[name]:_sfs_on_receive_fields_(name, fields)
+				end
+			end,
+			on_leave = function(self, player)
+				local name = player:get_player_name()
+				if smartfs.inv[name] then
+					smartfs.inv[name].players:disconnect(name)
+					smartfs.inv[name] = nil
+				end
+			end,
+		})
+	end,
+	_make_state_location_ = function(player)
+		return {
+			type = "inventory",
+			inventory_handles_fields = true,
+			player = player,
+			_show_ = function(state)
+				sfinv.set_player_inventory_formspec(minetest.get_player_by_name(state.location.player))
+			end,
 		}
 	end
 }
@@ -347,7 +399,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				smartfs.opened[name] = nil
 			end
 		end
-	elseif smartfs.inv[name] and smartfs.inv[name].location.type == "inventory" then
+	elseif smartfs.inv[name] and smartfs.inv[name].location.type == "inventory" and not smartfs.inv[name].location.inventory_handles_fields then
 		local state = smartfs.inv[name]
 		state:_sfs_on_receive_fields_(name, fields)
 	end

@@ -72,7 +72,7 @@ Now that you have located your element you can modify it.
     button1:setPos(4,0)
 
 ## Inventory Support
-Smartfs supports adding a button to Inventory+ or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (only for inventory+).
+Smartfs supports adding a button to Sfinv, Inventory+, or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (for inventory+ and sfinv).
 
     smartfs.add_to_inventory(form, icon, title)
 
