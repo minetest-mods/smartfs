@@ -126,14 +126,20 @@ smartfs._ldef.unified_inventory = {
 		unified_inventory.register_page(form.name, {
 			get_formspec = function(player, formspec)
 				local name = player:get_player_name()
-				local statelocation = smartfs._ldef.unified_inventory._make_state_location_(name)
-				local state = smartfs._makeState_(form, nil, statelocation, name)
-				if form.form_setup_callback(state) ~= false then
-					smartfs.inv[name] = state
-					return {formspec = state:_buildFormspec_(false)}
+				local state
+				if smartfs.inv[name] and smartfs.inv[name].def.name == form.name then
+					state = smartfs.inv[name]
 				else
-					return nil
+					local statelocation = smartfs._ldef.unified_inventory._make_state_location_(name)
+					state = smartfs._makeState_(form, nil, statelocation, name)
+					if form.form_setup_callback(state) ~= false then
+						smartfs.inv[name] = state
+					else
+						smartfs.inv[name] = nil
+						return ""
+					end
 				end
+				return {formspec = state:_buildFormspec_(false)}
 			end
 		})
 	end,
