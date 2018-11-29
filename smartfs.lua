@@ -89,7 +89,7 @@ end
 ------------------------------------------------------
 -- Smartfs Interface - Adds a form to an installed advanced inventory. Returns true on success.
 ------------------------------------------------------
-function smartfs.add_to_inventory(form, icon, title)
+function smartfs.add_to_inventory(form, icon, title, show_inv)
 	local ldef
 	local invmod = smartfs.inventory_mod()
 	if  invmod then
@@ -97,7 +97,7 @@ function smartfs.add_to_inventory(form, icon, title)
 	else
 		return false
 	end
-	return ldef.add_to_inventory(form, icon, title)
+	return ldef.add_to_inventory(form, icon, title, (show_inv == nil) and true or show_inv)
 end
 
 ------------------------------------------------------
@@ -118,7 +118,7 @@ end
 ------------------------------------------------------
 -- Unified inventory plugin
 smartfs._ldef.unified_inventory = {
-	add_to_inventory = function(form, icon, title)
+	add_to_inventory = function(form, icon, title, show_inv)
 		unified_inventory.register_button(form.name, {
 			type = "image",
 			image = icon,
@@ -139,7 +139,7 @@ smartfs._ldef.unified_inventory = {
 						return ""
 					end
 				end
-				return {formspec = state:_buildFormspec_(false)}
+				return {formspec = state:_buildFormspec_(false), draw_inventory = show_inv}
 			end
 		})
 	end,
@@ -185,7 +185,7 @@ smartfs._ldef.inventory_plus = {
 
 -- Sfinv plugin
 smartfs._ldef.sfinv = {
-	add_to_inventory = function(form, icon, title)
+	add_to_inventory = function(form, icon, title, show_inv)
 		sfinv.register_page(form.name, {
 			title = title,
 			get = function(self, player, context)
@@ -204,7 +204,7 @@ smartfs._ldef.sfinv = {
 					end
 				end
 				local fs = state:_buildFormspec_(false)
-				return sfinv.make_formspec(player, context, fs, true)
+				return sfinv.make_formspec(player, context, fs, show_inv)
 			end,
 			on_player_receive_fields = function(self, player, _, fields)
 				local name = player:get_player_name()
