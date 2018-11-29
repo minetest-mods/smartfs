@@ -9,17 +9,17 @@ This mod provides a 2nd generation way of creating forms - this means that the m
 
 License: WTFPL
 
-#Using Smart Formspec
+# Using Smart Formspec
 Smartfs provides 2nd generation Minetest forms to replace clunky formspec strings. Each smartfs form is a container filled with GUI elements. A number of default elements are included with smartfs, but modders can also define their own custom elements. This document describes the basic usage of the smartfs API.
 
-##Installation
+## Installation
 Smartfs can be used as a library or a mod.
 
 To use smartfs as a library, copy the smartfs.lua file to your mod folder and add
-    local smartfs = dofile(minetest.get\_modpath(minetest.get\_current\_modname()).."/smartfs.lua")
+    `local smartfs = dofile(minetest.get_modpath(minetest.get_current_modname()).."/smartfs.lua")`
 
 to the top of your init.lua. If your mod is splitted to multiple files you can transport the library reference trough your mod namespace
-    yourmod.smartfs = dofile(minetest.get\_modpath(minetest.get\_current\_modname()).."/smartfs.lua")
+    `yourmod.smartfs = dofile(minetest.get_modpath(minetest.get_current_modname()).."/smartfs.lua")`
 
 To use smartfs as a mod, add it to your game's mods folder or to the user mods folder and enable it.
 You need to set up a dependency for your mod to use it. The library is available in the global "smartfs" table in this case.
@@ -63,7 +63,7 @@ You can also get the element by using state:get(name). The example below will re
 
     button1 = state:get("btn1")
     --or
-    state:get("btn1"):onClick(your\_onclick\_function
+    state:get("btn1"):onClick(your_onclick_function)
 
 Both of these methods should be used inside the form creation callback function, the function you pass to smartfs.create, or in event callbacks.
 
@@ -72,7 +72,7 @@ Now that you have located your element you can modify it.
     button1:setPos(4,0)
 
 ## Inventory Support
-Smartfs supports adding a button to Sfinv, Inventory+, or Unified Inventory which will open one of your own custom forms. Use the smartfs.add\_to\_inventory(form, icon, title) function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (for inventory+ and sfinv).
+Smartfs supports adding a button to Sfinv, Inventory+, or Unified Inventory which will open one of your own custom forms. Use the `smartfs.add_to_inventory(form, icon, title)` function where form is the smartfs form linked to by the button, icon is the button image (only for unified inventory), and title is the button text (for inventory+ and sfinv).
 
     smartfs.add_to_inventory(form, icon, title)
 
