@@ -458,6 +458,92 @@ function smartfs._attach_to_node_(form, nodepos, params)
 end
 
 ------------------------------------------------------
+-- Smartfs Framework - Element class Methods
+------------------------------------------------------
+local element_class = {}
+
+function element_class:remove()
+	self.root._ele[self.name] = nil
+end
+
+function element_class:setPosition(x,y)
+	self.data.pos = {x=x,y=y}
+end
+
+function element_class:getPosition()
+	return self.data.pos
+end
+
+function element_class:setSize(w,h)
+	self.data.size = {w=w,h=h}
+end
+
+function element_class:getSize()
+	return self.data.size
+end
+
+function element_class:setVisible(visible)
+	if visible == nil then
+		self.data.visible = true
+	else
+		self.data.visible = visible
+	end
+end
+
+function element_class:getVisible()
+	return self.data.visible
+end
+
+function element_class:getAbsName()
+	return self.root:getNamespace()..self.name
+end
+
+function element_class:setBackground(image)
+	self.data.background = image
+end
+
+function element_class:getBackground()
+	return self.data.background
+end
+
+function element_class:getBackgroundString()
+	if self.data.background then
+		local size = self:getSize()
+		if size then
+			return "background["..
+					self.data.pos.x..","..self.data.pos.y..";"..
+					size.w..","..size.h..";"..
+					self.data.background.."]"
+		else
+			return ""
+		end
+	else
+		return ""
+	end
+end
+
+function element_class:setValue(value)
+	self.data.value = value
+end
+
+function element_class:setTooltip(text)
+	self.data.tooltip = minetest.formspec_escape(text)
+end
+
+function element_class:getTooltip()
+	return self.data.tooltip
+end
+
+function element_class:getTooltipString()
+	if self.data.tooltip then
+		return "tooltip["..self:getAbsName()..";"..self:getTooltip().."]"
+	else
+		return ""
+	end
+end
+
+
+------------------------------------------------------
 -- Smartfs Framework - create a form object (state)
 ------------------------------------------------------
 function smartfs._makeState_(form, params, location, newplayer)
@@ -657,79 +743,12 @@ function smartfs._makeState_(form, params, location, newplayer)
 			assert(type, "Element type "..typen.." does not exist!")
 			assert(not self._ele[data.name], "Element "..data.name.." already exists")
 
-			data.type = typen
-			local ele = {
-				name = data.name,
-				root = self,
-				data = data,
-				remove = function(self)
-					self.root._ele[self.name] = nil
-				end,
-				setPosition = function(self,x,y)
-					self.data.pos = {x=x,y=y}
-				end,
-				getPosition = function(self)
-					return self.data.pos
-				end,
-				setSize = function(self,w,h)
-					self.data.size = {w=w,h=h}
-				end,
-				getSize = function(self)
-					return self.data.size
-				end,
-				setVisible = function(self, visible)
-					if visible == nil then
-						self.data.visible = true
-					else
-						self.data.visible = visible
-					end
-				end,
-				getVisible = function(self)
-					return self.data.visible
-				end,
-				getAbsName = function(self)
-					return self.root:getNamespace()..self.name
-				end,
-				setBackground = function(self, image)
-					self.data.background = image
-				end,
-				getBackground = function(self)
-					return self.data.background
-				end,
-				getBackgroundString = function(self)
-					if self.data.background then
-						local size = self:getSize()
-						if size then
-							return "background["..
-									self.data.pos.x..","..self.data.pos.y..";"..
-									size.w..","..size.h..";"..
-									self.data.background.."]"
-						else
-							return ""
-						end
-					else
-						return ""
-					end
-				end,
-				setValue = function(self, value)
-					self.data.value = value
-				end,
-				setTooltip = function(self,text)
-					self.data.tooltip = minetest.formspec_escape(text)
-				end,
-				getTooltip = function(self)
-					return self.data.tooltip
-				end,
-				getTooltipString = function(self)
-					if self.data.tooltip then
-						return "tooltip["..self:getAbsName()..";"..self:getTooltip().."]"
-					else
-						return ""
-					end
-				end,
-			}
-
-			ele.data.visible = true --visible by default
+			local ele = setmetatable({}, {__index = element_class})
+			ele.name = data.name
+			ele.root = self
+			ele.data = data
+			ele.data.type = typen
+			ele.data.visible = true
 
 			for key, val in pairs(type) do
 				ele[key] = val
