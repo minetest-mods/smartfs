@@ -461,6 +461,7 @@ end
 -- Smartfs Framework - Element class Methods
 ------------------------------------------------------
 local element_class = {}
+local element_class_mt = { __index = element_class }
 
 function element_class:remove()
 	self.root._ele[self.name] = nil
@@ -546,6 +547,7 @@ end
 -- Smartfs Framework - State class Methods
 ------------------------------------------------------
 local state_class = {}
+local state_class_mt = { __index = state_class }
 function state_class:get(name)
 	return self._ele[name]
 end
@@ -718,7 +720,7 @@ function state_class:element(typen,data)
 	assert(type, "Element type "..typen.." does not exist!")
 	assert(not self._ele[data.name], "Element "..data.name.." already exists")
 
-	local ele = setmetatable({}, {__index = element_class})
+	local ele = setmetatable({}, element_class_mt)
 	ele.name = data.name
 	ele.root = self
 	ele.data = data
@@ -947,7 +949,7 @@ function smartfs._makeState_(form, params, location, newplayer)
 		param = params or {},
 		show = location._show_,
 	}
-	return setmetatable(state, {__index = state_class})
+	return setmetatable(state, state_class_mt)
 end
 
 -----------------------------------------------------------------
