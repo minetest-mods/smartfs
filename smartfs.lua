@@ -1416,12 +1416,15 @@ smartfs.element("inventory", {
 		assert(self.data.pos and self.data.pos.x and self.data.pos.y, "list needs valid pos")
 		assert(self.data.size and self.data.size.w and self.data.size.h, "list needs valid size")
 		assert(self.name, "list needs name")
+
+		-- Default the list name to the element name.
+		self.data.list = self.name
 	end,
 	build = function(self)
 		return "list["..
 			(self.data.invlocation or "current_player") ..
 			";"..
-			self.name..    --no namespacing
+			self.data.list ..
 			";"..
 			self.data.pos.x..","..self.data.pos.y..
 			";"..
@@ -1450,6 +1453,12 @@ smartfs.element("inventory", {
 	end,
 	useDetached = function(self, name)
 		self.data.invlocation = "detached:" .. name
+	end,
+	setList = function(self, list)
+		self.data.list = list or self.name
+	end,
+	getList = function(self)
+		return self.data.list
 	end,
 	setIndex = function(self,index)
 		self.data.index = index
